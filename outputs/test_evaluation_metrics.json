@@ -1,0 +1,30 @@
+{
+    "track1_raw_lightgbm": {
+        "Target Task": "Track 1: Raw Label",
+        "Model Architecture": "Proposed LightGBM Classifier",
+        "Cutoff": 0.5,
+        "Accuracy": 0.6463333333333333,
+        "Precision": 0.030012585923129054,
+        "Recall (Sens.)": 0.34406215316315203,
+        "F1-Score": 0.05520926090828139,
+        "PR-AUC": 0.03112831536939613,
+        "ROC-AUC": 0.49907753007748545,
+        "MCC": -8.808452974182452e-05,
+        "Brier Score": 0.22870006093326561
+    },
+    "track2_eco_lightgbm": {
+        "Target Task": "Track 2: Eco-Stress",
+        "Model Architecture": "Proposed LightGBM Classifier",
+        "Cutoff": 0.5,
+        "Accuracy": 0.948,
+        "Precision": 0.9504881450488145,
+        "Recall (Sens.)": 0.6578185328185329,
+        "F1-Score": 0.7775242441528808,
+        "PR-AUC": 0.7192249655601533,
+        "ROC-AUC": 0.8298962864791397,
+        "MCC": 0.7654646482705272,
+        "Brier Score": 0.08206477537815988
+    },
+    "optimal_threshold": 0.33999999999999997,
+    "best_iteration": 12
+}

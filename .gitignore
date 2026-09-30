@@ -1,0 +1,22 @@
+# Môi trường ảo Python
+venv/
+env/
+__pycache__/
+*.pyc
+
+# Thư viện React
+frontend/node_modules/
+frontend/dist/
+
+# File dữ liệu thô lớn
+*.csv
+!outputs/*.csv
+
+# File cấu hình hệ thống & database nội bộ
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+*.db
+*.sqlite3
+.env
