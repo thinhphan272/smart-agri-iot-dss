@@ -20,3 +20,13 @@ Thumbs.db
 *.db
 *.sqlite3
 .env
+
+# File nhật ký / Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+# Thư mục chứa file tải lên tạm thời & cache test
+backend/uploads/
+backend/temp/
+.pytest_cache/
