@@ -35,7 +35,7 @@ class SensorDiagnostic(Base):
     timestamp = Column(DateTime(timezone=True), server_default=func.now())
     soil_ph = Column(REAL, nullable=False)
     soil_moisture = Column(REAL, nullable=False)
-    air_temp_C = Column(REAL, nullable=False)
+    air_temp_C = Column("air_temp_c", REAL, nullable=False)
     sunlight_hours = Column(REAL, nullable=False)
     pollution_index = Column(REAL, nullable=False)
     vegetation_density = Column(REAL, nullable=False)
