@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from backend.app.routers import auth, predict, batch
+from backend.app.routers import auth, predict, batch, chat, websocket
 
 app = FastAPI(
     title="AgriGuard-IoT Backend API",
@@ -23,6 +23,8 @@ app.add_middleware(
 app.include_router(auth.router, prefix="/api/auth", tags=["1. Xác thực & Phân quyền (Auth & RBAC)"])
 app.include_router(predict.router, prefix="/api/predict", tags=["2. Chẩn đoán & AI Engine (Predict & Diagnosis)"])
 app.include_router(batch.router, prefix="/api/batch", tags=["3. Xử lý Lô Big Data CSV (Batch Processing)"])
+app.include_router(chat.router, prefix="/api/chat", tags=["4. Trợ lý AI Nông học (Hybrid Chatbot)"])
+app.include_router(websocket.router, tags=["5. Đồng bộ Realtime & Thiết bị (WebSocket & Actuators)"])
 
 @app.get("/", tags=["Trạng thái Hệ thống"])
 def read_root():
