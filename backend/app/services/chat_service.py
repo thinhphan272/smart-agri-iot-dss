@@ -73,7 +73,15 @@ INTERNAL_KNOWLEDGE = [
 def check_is_on_topic(message: str) -> bool:
     """Kiểm tra câu hỏi của người dùng có nằm trong phạm vi nông nghiệp/cây trồng không"""
     msg_lower = message.lower()
-    return any(kw in msg_lower for kw in AGRI_KEYWORDS)
+    for kw in AGRI_KEYWORDS:
+        if len(kw) <= 2:
+            # Khớp nguyên từ cho từ khóa ngắn như 'ph' để tránh nhận nhầm trong 'cổ phiếu', 'phương pháp'...
+            if re.search(r'(?<![a-zA-Z0-9_À-ỹ])' + re.escape(kw) + r'(?![a-zA-Z0-9_À-ỹ])', msg_lower):
+                return True
+        else:
+            if kw in msg_lower:
+                return True
+    return False
 
 
 def query_internal_knowledge(message: str) -> str:
