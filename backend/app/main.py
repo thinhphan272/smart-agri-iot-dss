@@ -19,12 +19,22 @@ app.add_middleware(
 )
 
 
+import os
+from fastapi.staticfiles import StaticFiles
+
 # Đăng ký các Router nghiệp vụ
 app.include_router(auth.router, prefix="/api/auth", tags=["1. Xác thực & Phân quyền (Auth & RBAC)"])
 app.include_router(predict.router, prefix="/api/predict", tags=["2. Chẩn đoán & AI Engine (Predict & Diagnosis)"])
 app.include_router(batch.router, prefix="/api/batch", tags=["3. Xử lý Lô Big Data CSV (Batch Processing)"])
 app.include_router(chat.router, prefix="/api/chat", tags=["4. Trợ lý AI Nông học (Hybrid Chatbot)"])
 app.include_router(websocket.router, tags=["5. Đồng bộ Realtime & Thiết bị (WebSocket & Actuators)"])
+
+# Phục vụ tệp tĩnh ảnh biểu đồ và artifacts phục vụ Frontend
+CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
+PROJECT_ROOT = os.path.abspath(os.path.join(CURRENT_DIR, "..", ".."))
+OUTPUTS_DIR = os.path.join(PROJECT_ROOT, "outputs")
+if os.path.exists(OUTPUTS_DIR):
+    app.mount("/outputs", StaticFiles(directory=OUTPUTS_DIR), name="outputs")
 
 @app.get("/", tags=["Trạng thái Hệ thống"])
 def read_root():

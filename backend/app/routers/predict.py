@@ -94,20 +94,55 @@ def get_diagnostic_history(
     return records
 
 
+from fastapi.responses import FileResponse
+
 @router.get("/metrics")
 def get_academic_evaluation_metrics():
     """
-    Trả về dữ liệu báo cáo khoa học đối chứng Dual-Track phục vụ giảng viên / hội đồng:
+    Trả về dữ liệu báo cáo khoa học đối chứng:
     - Track 1 (Raw Label): Baseline models với zero-signal
     - Track 2 (Eco-Stress): LightGBM đạt ROC-AUC 0.83, F1-Score 0.78, Accuracy 94.8%
+    - Apache Spark MLlib: 4 mô hình huấn luyện phân tán trên 6 Partitions (GBT, RF, DT, LR)
     """
+    data = {}
     metrics_path = os.path.join(OUTPUTS_DIR, "test_evaluation_metrics.json")
     if os.path.exists(metrics_path):
         with open(metrics_path, "r", encoding="utf-8") as f:
             data = json.load(f)
+    
+    spark_path = os.path.join(OUTPUTS_DIR, "spark_evaluation_metrics.json")
+    if os.path.exists(spark_path):
+        with open(spark_path, "r", encoding="utf-8") as f:
+            data["spark_mllib"] = json.load(f)
+
+    if data:
         return data
     
     return {
         "status": "unavailable",
         "message": "Metrics file not found in outputs directory."
     }
+
+
+@router.get("/download-artifacts/{target}")
+def download_artifacts(target: str = "lightgbm"):
+    """
+    Tải gói nén Artifacts phục vụ nghiệm thu đồ án:
+    - target = 'spark': spark_mllib_model_artifacts.zip
+    - target = 'lightgbm' (mặc định): plant_health_model_artifacts.zip
+    """
+    if target.lower() == "spark":
+        zip_path = os.path.join(OUTPUTS_DIR, "spark_mllib_model_artifacts.zip")
+        filename = "spark_mllib_model_artifacts.zip"
+    else:
+        zip_path = os.path.join(OUTPUTS_DIR, "plant_health_model_artifacts.zip")
+        filename = "plant_health_model_artifacts.zip"
+    
+    if os.path.exists(zip_path):
+        return FileResponse(
+            path=zip_path,
+            filename=filename,
+            media_type="application/zip"
+        )
+    raise HTTPException(status_code=404, detail=f"Artifacts package not found: {filename}")
+

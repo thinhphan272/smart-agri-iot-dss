@@ -1,0 +1,38 @@
+{
+  "Logistic Regression": {
+    "train_time_sec": 8.181,
+    "accuracy": 0.9031,
+    "precision": 0.9038,
+    "recall": 0.9031,
+    "f1": 0.8835,
+    "roc_auc": 0.8015,
+    "pr_auc": 0.6386
+  },
+  "Decision Tree": {
+    "train_time_sec": 3.303,
+    "accuracy": 0.9405,
+    "precision": 0.9386,
+    "recall": 0.9405,
+    "f1": 0.9364,
+    "roc_auc": 0.2135,
+    "pr_auc": 0.0862
+  },
+  "Random Forest": {
+    "train_time_sec": 8.1,
+    "accuracy": 0.9403,
+    "precision": 0.9384,
+    "recall": 0.9403,
+    "f1": 0.9361,
+    "roc_auc": 0.8303,
+    "pr_auc": 0.7188
+  },
+  "GBTClassifier": {
+    "train_time_sec": 21.416,
+    "accuracy": 0.9407,
+    "precision": 0.9389,
+    "recall": 0.9407,
+    "f1": 0.9366,
+    "roc_auc": 0.834,
+    "pr_auc": 0.733
+  }
+}
