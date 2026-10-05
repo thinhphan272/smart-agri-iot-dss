@@ -15,7 +15,10 @@ import {
   FileText,
   Zap,
   Flame,
-  Info
+  Info,
+  Columns,
+  LayoutGrid,
+  Sparkles
 } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
 import { API_BASE_URL } from '../services/api';
@@ -23,7 +26,7 @@ import { API_BASE_URL } from '../services/api';
 export default function AcademicHub() {
   const { t } = useLanguage();
   const [activeSubTab, setActiveSubTab] = useState('spark-vs-traditional'); // 'spark-vs-traditional' | 'track1-vs-track2'
-  const [chartGroup, setChartGroup] = useState('spark'); // 'spark' | 'traditional'
+  const [chartViewMode, setChartViewMode] = useState('side-by-side'); // 'side-by-side' | 'spark' | 'traditional'
   const [zoomedImage, setZoomedImage] = useState(null);
 
   // Dữ liệu so sánh đa mô hình toàn diện (Thư viện thông thường vs Apache Spark MLlib)
@@ -137,87 +140,123 @@ export default function AcademicHub() {
     }
   ];
 
-  // Danh mục 5 biểu đồ Thư viện thông thường (LightGBM)
-  const traditionalCharts = [
+  // 6 CẶP BIỂU ĐỒ SO SÁNH SONG SONG ĐỐI ỨNG TRỰC DIỆN (SIDE-BY-SIDE DUAL VIEW)
+  const pairedCharts = [
     {
-      id: "loss_conv",
-      title: "Đường Cong Hội Tụ Loss Function",
-      file: "loss_convergence_curve.png",
-      desc: "Hàm mất mát Log-loss giảm đều qua 150 vòng lặp, minh chứng mô hình học hội tụ không bị Overfitting."
+      id: "pair_loss",
+      title: "1. Đường Cong Hội Tụ Loss Function (Loss Convergence Curve)",
+      subtitle: "So sánh khả năng học hội tụ và kiểm soát Overfitting qua các vòng lặp Boosting",
+      insight: "Cả LightGBM (150 vòng) và Spark GBT (30 vòng phân tán) đều hội tụ mượt mà theo hàm mũ, hàm mất mát Log-loss giảm dần ổn định và không gặp hiện tượng Overfitting.",
+      traditional: {
+        title: "Thư Viện Thường: LightGBM Loss Convergence",
+        file: "loss_convergence_curve.png",
+        desc: "Hàm mất mát Log-loss giảm đều qua 150 vòng lặp, minh chứng mô hình học hội tụ ổn định không bị Overfitting."
+      },
+      spark: {
+        title: "Apache Spark MLlib: GBT Loss Convergence",
+        file: "spark_loss_convergence_curve.png",
+        desc: "Hàm mất mát Log-loss giảm đều qua 30 vòng lặp Boosting phân tán, ROC-AUC hội tụ tiệm cận 0.8340."
+      }
     },
     {
-      id: "cm_test",
-      title: "Ma Trận Nhầm Lẫn Tập Test (Confusion Matrix)",
-      file: "confusion_matrix_test.png",
-      desc: "Độ nhạy đạt 65.78% ở ngưỡng T*=0.34, phát hiện chính xác cây stress sinh thái trên 60,000 mẫu kiểm thử."
+      id: "pair_cm",
+      title: "2. Ma Trận Nhầm Lẫn Trên Tập Test (Confusion Matrix Comparison)",
+      subtitle: "Đối chiếu năng lực bắt bệnh stress sinh thái thực tế trên tập Holdout Test Set",
+      insight: "Tỷ lệ bắt trúng cây stress (Recall/Sensitivity) của 2 mô hình tương đương nhau (~65.8% vs 66.0%), trong khi tỷ lệ dự đoán đúng cây khỏe (Specificity) đạt trên 98.6%. Cả 2 đều loại bỏ triệt để hiện tượng đoán bừa.",
+      traditional: {
+        title: "Thư Viện Thường: LightGBM Confusion Matrix",
+        file: "confusion_matrix_test.png",
+        desc: "Độ nhạy đạt 65.78% ở ngưỡng T*=0.34, phát hiện chính xác cây stress sinh thái trên 60,000 mẫu kiểm thử."
+      },
+      spark: {
+        title: "Apache Spark MLlib: GBT Confusion Matrix",
+        file: "spark_confusion_matrix.png",
+        desc: "Phân loại phân tán trên 6 Partitions, phát hiện 2,740 cây stress (Recall 66.02%) mượt mà, không đè chữ."
+      }
     },
     {
-      id: "roc_pr",
-      title: "Đường Cong PR & ROC Kép",
-      file: "pr_and_roc_curves.png",
-      desc: "ROC-AUC đạt 0.830 và PR-AUC đạt 0.719, vượt xa ngẫu nhiên (0.50) và giữ vững độ phân loại cao."
+      id: "pair_roc",
+      title: "3. Đường Cong ROC & Precision-Recall Kép (PR & ROC Curves)",
+      subtitle: "Đánh giá chất lượng phân loại toàn diện độc lập với ngưỡng quyết định",
+      insight: "Spark GBT đạt ROC-AUC 0.8340 và PR-AUC 0.7330, tiệm cận hoàn hảo với LightGBM (ROC-AUC 0.8299, PR-AUC 0.7192). Cả 2 đều vượt xa ngẫu nhiên (0.50) và giữ vững độ phân loại cao.",
+      traditional: {
+        title: "Thư Viện Thường: PR & ROC Curves",
+        file: "pr_and_roc_curves.png",
+        desc: "ROC-AUC đạt 0.830 và PR-AUC đạt 0.719, vượt xa ngẫu nhiên (0.50) và giữ vững độ phân loại cao."
+      },
+      spark: {
+        title: "Apache Spark MLlib: PR & ROC Curves",
+        file: "spark_pr_and_roc_curves.png",
+        desc: "Spark GBT đạt ROC-AUC = 0.8340 và PR-AUC = 0.7330, chứng minh tính toàn vẹn toán học phân tán."
+      }
     },
     {
-      id: "feat_imp",
-      title: "Tầm Quan Trọng 20 Đặc Trưng Sinh Thái",
-      file: "feature_importance.png",
-      desc: "Độ chua đất (pH Stress), Hạn hán (Drought Risk) và Ma sát thủy văn chiếm vị trí đầu bảng trong cây quyết định."
+      id: "pair_feat",
+      title: "4. Tầm Quan Trọng Đặc Trưng Nông Học (Feature Importance)",
+      subtitle: "Xác định các yếu tố môi trường sinh thái có trọng số quyết định đến sức khỏe cây trồng",
+      insight: "Cả hai cách tiếp cận đều thống nhất: Độ chua đất (Soil Acidity Stress), Chỉ số Hạn hán (Drought Risk) và Mức độ tổn thương ô nhiễm là 3 yếu tố quyết định hàng đầu trong mô hình cây.",
+      traditional: {
+        title: "Thư Viện Thường: 20 Đặc Trưng Sinh Thái",
+        file: "feature_importance.png",
+        desc: "Độ chua đất (pH Stress), Hạn hán (Drought Risk) và Ma sát thủy văn chiếm vị trí đầu bảng trong cây quyết định."
+      },
+      spark: {
+        title: "Apache Spark MLlib: Tree Feature Importances",
+        file: "spark_feature_importance.png",
+        desc: "Trích xuất từ VectorAssembler và GBTClassificationModel trên Apache Spark Pipeline."
+      }
     },
     {
-      id: "model_bench",
-      title: "So Sánh Hiệu Năng Đa Mô Hình Chuẩn Quốc Tế",
-      file: "model_benchmark_comparison.png",
-      desc: "Đối chứng toàn diện Dummy vs Logistic Regression vs Decision Tree vs LightGBM trên cả 2 Track."
+      id: "pair_bench",
+      title: "5. Tổng Hợp So Sánh Đa Mô Hình (Multi-Model Benchmark)",
+      subtitle: "Đối chiếu hiệu năng giữa các giải thuật trong từng môi trường tính toán",
+      insight: "Ở cả 2 môi trường, thuật toán Boosting (LightGBM và Spark GBT) đều vượt trội hoàn toàn so với Cây quyết định đơn lẻ (Decision Tree) và Hồi quy Tuyến tính (Logistic Regression).",
+      traditional: {
+        title: "Thư Viện Thường: Đa Mô Hình Chuẩn Quốc Tế",
+        file: "model_benchmark_comparison.png",
+        desc: "Đối chứng toàn diện Dummy vs Logistic Regression vs Decision Tree vs LightGBM trên cả 2 Track."
+      },
+      spark: {
+        title: "Apache Spark MLlib: Benchmark 4 Mô Hình",
+        file: "spark_model_benchmark.png",
+        desc: "Đối sánh trực quan giữa Logistic Regression, Decision Tree, Random Forest và GBT trên Spark."
+      }
     },
     {
-      id: "trad_time",
-      title: "Thời Gian Huấn Luyện Thư Viện Thông Thường",
-      file: "training_time_comparison.png",
-      desc: "Thời gian huấn luyện trên CPU đơn máy: LightGBM chỉ 1.25s, Decision Tree 0.85s, Logistic Regression 2.10s."
+      id: "pair_time",
+      title: "6. Thời Gian Huấn Luyện & Chi Phí Phân Tán (Training Time & Distributed Overhead)",
+      subtitle: "Minh chứng bản chất Big Data: Đơn luồng C++ nhanh ở dữ liệu nhỏ, Spark mở rộng ở dữ liệu lớn",
+      insight: "Tập 200k dòng (~23.5MB) nằm vừa trong RAM nên thư viện thường train chỉ mất 1.25s. Spark MLlib mất 21.42s do chi phí khởi tạo JVM, Py4J và chia 6 Partitions (Distributed Overhead).",
+      traditional: {
+        title: "Thư Viện Thường: Thời Gian Huấn Luyện Đơn Máy",
+        file: "training_time_comparison.png",
+        desc: "Thời gian huấn luyện trên CPU đơn máy: LightGBM chỉ 1.25s, Decision Tree 0.85s, Logistic Regression 2.10s."
+      },
+      spark: {
+        title: "Apache Spark MLlib: Thời Gian Huấn Luyện Phân Tán",
+        file: "spark_training_time_comparison.png",
+        desc: "Đo lường thời gian huấn luyện 4 mô hình Spark trên 6 Partitions (Decision Tree 3.3s, GBT 21.4s)."
+      }
     }
   ];
 
-  // Danh mục biểu đồ Apache Spark MLlib (Đồng bộ 1-1 với thư viện thường)
-  const sparkCharts = [
-    {
-      id: "spark_loss",
-      title: "Đường Cong Hội Tụ Loss Function (Spark GBT Loss)",
-      file: "spark_loss_convergence_curve.png",
-      desc: "Hàm mất mát Log-loss giảm đều qua 30 vòng lặp Boosting phân tán, ROC-AUC hội tụ tiệm cận 0.8340."
-    },
-    {
-      id: "spark_cm",
-      title: "Ma Trận Nhầm Lẫn Phân Tán (Spark GBT Confusion Matrix)",
-      file: "spark_confusion_matrix.png",
-      desc: "Khả năng phân loại của Spark GBTClassifier trên tập dữ liệu phân tán 60,000 mẫu kiểm thử."
-    },
-    {
-      id: "spark_roc",
-      title: "Đường Cong PR & ROC của Apache Spark MLlib",
-      file: "spark_pr_and_roc_curves.png",
-      desc: "Spark GBT đạt ROC-AUC = 0.8340 và PR-AUC = 0.7330, chứng minh tính toàn vẹn toán học phân tán."
-    },
-    {
-      id: "spark_feat",
-      title: "Trọng Số Đặc Trưng Phân Tán (Spark GBT Feature Importance)",
-      file: "spark_feature_importance.png",
-      desc: "Trích xuất từ VectorAssembler và GBTClassificationModel trên Apache Spark Pipeline."
-    },
-    {
-      id: "spark_bench",
-      title: "Tổng Hợp Benchmark Các Mô Hình Apache Spark MLlib",
-      file: "spark_model_benchmark.png",
-      desc: "Đối sánh trực quan giữa Logistic Regression, Decision Tree, Random Forest và GBT trên Spark."
-    },
-    {
-      id: "spark_time",
-      title: "Thời Gian Huấn Luyện Phân Tán (Spark Training Time)",
-      file: "spark_training_time_comparison.png",
-      desc: "Đo lường thời gian huấn luyện 4 mô hình Spark trên 6 Partitions (Decision Tree 3.3s, GBT 21.4s)."
-    }
-  ];
+  // Danh mục 6 biểu đồ Thư viện thông thường (LightGBM)
+  const traditionalCharts = pairedCharts.map(p => ({
+    id: p.id + '_trad',
+    title: p.traditional.title,
+    file: p.traditional.file,
+    desc: p.traditional.desc
+  }));
 
-  const currentCharts = chartGroup === 'spark' ? sparkCharts : traditionalCharts;
+  // Danh mục 6 biểu đồ Apache Spark MLlib
+  const sparkCharts = pairedCharts.map(p => ({
+    id: p.id + '_spark',
+    title: p.spark.title,
+    file: p.spark.file,
+    desc: p.spark.desc
+  }));
+
+  const singleCharts = chartViewMode === 'spark' ? sparkCharts : traditionalCharts;
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 26, paddingBottom: 40 }}>
@@ -586,41 +625,45 @@ export default function AcademicHub() {
         </div>
       )}
 
-      {/* SECTION: 10 SCIENTIFIC VISUALIZATION CHARTS (300 DPI) */}
+      {/* SECTION: 6x6 SCIENTIFIC VISUALIZATION GALLERY & SIDE-BY-SIDE COMPARISON */}
       <div className="glass-panel" style={{ padding: '26px' }}>
-        <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'center', gap: 16, marginBottom: 20 }}>
+        <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'center', gap: 16, marginBottom: 22 }}>
           <div>
-            <h3 style={{ fontSize: '1.2rem', color: 'var(--text-primary)', fontWeight: 700 }}>
-              Thư Viện Biểu Đồ Thực Nghiệm Khoa Học (300 DPI)
-            </h3>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
+              <h3 style={{ fontSize: '1.25rem', color: 'var(--text-primary)', fontWeight: 700 }}>
+                Thư Viện Đối Chứng Biểu Đồ Khoa Học (300 DPI)
+              </h3>
+              <span className="badge badge-optimal">Đồng Bộ 6x6 Chuẩn Đối Ứng</span>
+            </div>
             <p style={{ fontSize: '0.82rem', color: 'var(--text-secondary)' }}>
-              Xuất trực tiếp từ quá trình huấn luyện máy học phục vụ Báo cáo & Trình chiếu trước Hội đồng
+              Đặt cạnh nhau để so sánh trực diện từng tiêu chí giữa Thư viện thông thường (LightGBM) và Apache Spark MLlib
             </p>
           </div>
 
-          {/* Chart Group Selector */}
-          <div style={{ display: 'flex', gap: 8, background: 'var(--bg-surface)', padding: 4, borderRadius: 10 }}>
+          {/* View Mode Selector */}
+          <div style={{ display: 'flex', gap: 8, background: 'var(--bg-surface)', padding: 4, borderRadius: 10, flexWrap: 'wrap' }}>
             <button
-              onClick={() => setChartGroup('spark')}
+              onClick={() => setChartViewMode('side-by-side')}
               className="btn"
               style={{
-                padding: '8px 14px',
+                padding: '8px 16px',
                 fontSize: '0.82rem',
                 borderRadius: 8,
                 display: 'flex',
                 alignItems: 'center',
                 gap: 6,
-                background: chartGroup === 'spark' ? '#f59e0b' : 'transparent',
-                color: chartGroup === 'spark' ? '#000000' : 'var(--text-secondary)',
-                fontWeight: chartGroup === 'spark' ? 700 : 500
+                background: chartViewMode === 'side-by-side' ? 'linear-gradient(135deg, #10b981 0%, #0d9488 100%)' : 'transparent',
+                color: chartViewMode === 'side-by-side' ? '#ffffff' : 'var(--text-secondary)',
+                fontWeight: chartViewMode === 'side-by-side' ? 700 : 500,
+                boxShadow: chartViewMode === 'side-by-side' ? '0 2px 8px rgba(16, 185, 129, 0.3)' : 'none'
               }}
             >
-              <Flame size={15} />
-              <span>6 Biểu Đồ Spark MLlib (Có Loss Curve)</span>
+              <Columns size={15} />
+              <span>👥 So Sánh Song Song 2 Bên (Khuyên Dùng)</span>
             </button>
 
             <button
-              onClick={() => setChartGroup('traditional')}
+              onClick={() => setChartViewMode('spark')}
               className="btn"
               style={{
                 padding: '8px 14px',
@@ -629,107 +672,357 @@ export default function AcademicHub() {
                 display: 'flex',
                 alignItems: 'center',
                 gap: 6,
-                background: chartGroup === 'traditional' ? 'var(--color-optimal)' : 'transparent',
-                color: chartGroup === 'traditional' ? '#ffffff' : 'var(--text-secondary)',
-                fontWeight: chartGroup === 'traditional' ? 700 : 500
+                background: chartViewMode === 'spark' ? '#f59e0b' : 'transparent',
+                color: chartViewMode === 'spark' ? '#000000' : 'var(--text-secondary)',
+                fontWeight: chartViewMode === 'spark' ? 700 : 500
+              }}
+            >
+              <Flame size={15} />
+              <span>🔥 6 Biểu Đồ Spark MLlib</span>
+            </button>
+
+            <button
+              onClick={() => setChartViewMode('traditional')}
+              className="btn"
+              style={{
+                padding: '8px 14px',
+                fontSize: '0.82rem',
+                borderRadius: 8,
+                display: 'flex',
+                alignItems: 'center',
+                gap: 6,
+                background: chartViewMode === 'traditional' ? 'var(--color-optimal)' : 'transparent',
+                color: chartViewMode === 'traditional' ? '#ffffff' : 'var(--text-secondary)',
+                fontWeight: chartViewMode === 'traditional' ? 700 : 500
               }}
             >
               <Zap size={15} />
-              <span>6 Biểu Đồ Thư Viện Thường</span>
+              <span>⚡ 6 Biểu Đồ Thư Viện Thường</span>
             </button>
           </div>
         </div>
 
-        {/* Gallery Grid */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: 20 }}>
-          {currentCharts.map((chart) => {
-            const imageUrl = `${API_BASE_URL}/outputs/${chart.file}`;
-            return (
-              <div 
-                key={chart.id}
-                className="glass-panel" 
-                style={{ 
-                  overflow: 'hidden', 
-                  display: 'flex', 
-                  flexDirection: 'column',
-                  border: '1px solid var(--border-card)',
-                  transition: 'all 0.25s ease'
-                }}
-              >
-                {/* Image Container with Hover Overlay */}
+        {/* ====================================================================== */}
+        {/* VIEW 1: SIDE-BY-SIDE DUAL COMPARISON (2 HÌNH KẾ BÊN NHAU MỖI TIÊU CHÍ)   */}
+        {/* ====================================================================== */}
+        {chartViewMode === 'side-by-side' && (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 28 }}>
+            {pairedCharts.map((pair) => {
+              const tradUrl = `${API_BASE_URL}/outputs/${pair.traditional.file}`;
+              const sparkUrl = `${API_BASE_URL}/outputs/${pair.spark.file}`;
+
+              return (
                 <div 
-                  style={{ 
-                    position: 'relative', 
-                    background: '#040706', 
-                    height: 220, 
-                    display: 'flex', 
-                    alignItems: 'center', 
-                    justifyContent: 'center',
-                    cursor: 'pointer'
-                  }}
-                  onClick={() => setZoomedImage({ url: imageUrl, title: chart.title, desc: chart.desc })}
-                >
-                  <img 
-                    src={imageUrl} 
-                    alt={chart.title}
-                    style={{ 
-                      maxWidth: '100%', 
-                      maxHeight: '100%', 
-                      objectFit: 'contain' 
-                    }}
-                    onError={(e) => {
-                      e.target.style.display = 'none';
-                      e.target.parentElement.innerHTML = '<div style="padding: 20px; color: var(--text-muted); font-size: 0.8rem; text-align: center;">📊 Biểu đồ đang được kết xuất...</div>';
-                    }}
-                  />
-                  <div style={{
-                    position: 'absolute',
-                    top: 10,
-                    right: 10,
-                    background: 'rgba(0,0,0,0.65)',
-                    borderRadius: '8px',
-                    padding: '6px',
-                    color: '#ffffff',
+                  key={pair.id}
+                  className="glass-panel"
+                  style={{
+                    padding: '22px',
+                    border: '1px solid var(--border-card)',
+                    borderRadius: '14px',
                     display: 'flex',
-                    alignItems: 'center',
-                    gap: 4,
-                    fontSize: '0.72rem'
+                    flexDirection: 'column',
+                    gap: 16
+                  }}
+                >
+                  {/* Pair Header */}
+                  <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'center', gap: 10, borderBottom: '1px solid var(--border-card)', paddingBottom: 12 }}>
+                    <div>
+                      <h4 style={{ fontSize: '1.1rem', color: 'var(--text-primary)', fontWeight: 700, display: 'flex', alignItems: 'center', gap: 8 }}>
+                        <Sparkles size={17} color="#10b981" />
+                        <span>{pair.title}</span>
+                      </h4>
+                      <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', marginTop: 2 }}>
+                        {pair.subtitle}
+                      </p>
+                    </div>
+                    <span className="badge badge-optimal">Đối Chiếu Song Song Trực Diện</span>
+                  </div>
+
+                  {/* 2 Images Placed Side-by-Side in Same Frame */}
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: 18 }}>
+                    {/* LEFT: TRADITIONAL ML */}
+                    <div style={{
+                      background: 'var(--bg-surface)',
+                      borderRadius: '12px',
+                      overflow: 'hidden',
+                      border: '1px solid rgba(16, 185, 129, 0.25)',
+                      display: 'flex',
+                      flexDirection: 'column'
+                    }}>
+                      {/* Sub-header */}
+                      <div style={{ 
+                        padding: '10px 14px', 
+                        background: 'rgba(16, 185, 129, 0.08)', 
+                        display: 'flex', 
+                        justifyContent: 'space-between', 
+                        alignItems: 'center',
+                        borderBottom: '1px solid rgba(16, 185, 129, 0.15)'
+                      }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                          <Zap size={15} color="var(--color-optimal)" />
+                          <span style={{ fontSize: '0.82rem', fontWeight: 700, color: 'var(--color-optimal)' }}>
+                            THƯ VIỆN THƯỜNG (LIGHTGBM)
+                          </span>
+                        </div>
+                        <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>Single-Node C++</span>
+                      </div>
+
+                      {/* Image Frame */}
+                      <div 
+                        style={{
+                          position: 'relative',
+                          background: '#040706',
+                          height: 240,
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          cursor: 'pointer'
+                        }}
+                        onClick={() => setZoomedImage({ url: tradUrl, title: pair.traditional.title, desc: pair.traditional.desc })}
+                      >
+                        <img 
+                          src={tradUrl} 
+                          alt={pair.traditional.title}
+                          style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }}
+                        />
+                        <div style={{
+                          position: 'absolute',
+                          top: 10,
+                          right: 10,
+                          background: 'rgba(0,0,0,0.65)',
+                          borderRadius: '8px',
+                          padding: '5px 8px',
+                          color: '#ffffff',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: 4,
+                          fontSize: '0.72rem'
+                        }}>
+                          <Maximize2 size={12} />
+                          <span>Phóng to</span>
+                        </div>
+                      </div>
+
+                      {/* Caption & Download */}
+                      <div style={{ padding: '14px', display: 'flex', flexDirection: 'column', flex: 1, justifyContent: 'space-between' }}>
+                        <p style={{ fontSize: '0.79rem', color: 'var(--text-secondary)', lineHeight: 1.5, marginBottom: 10 }}>
+                          {pair.traditional.desc}
+                        </p>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: 8, borderTop: '1px solid var(--border-card)' }}>
+                          <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)', fontFamily: 'var(--font-mono)' }}>300 DPI • PNG</span>
+                          <a
+                            href={tradUrl}
+                            download={pair.traditional.file}
+                            className="btn btn-secondary"
+                            style={{ padding: '5px 10px', fontSize: '0.74rem', display: 'flex', alignItems: 'center', gap: 5 }}
+                          >
+                            <Download size={13} />
+                            <span>Tải ảnh PNG</span>
+                          </a>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* RIGHT: APACHE SPARK MLLIB */}
+                    <div style={{
+                      background: 'var(--bg-surface)',
+                      borderRadius: '12px',
+                      overflow: 'hidden',
+                      border: '1px solid rgba(245, 158, 11, 0.25)',
+                      display: 'flex',
+                      flexDirection: 'column'
+                    }}>
+                      {/* Sub-header */}
+                      <div style={{ 
+                        padding: '10px 14px', 
+                        background: 'rgba(245, 158, 11, 0.08)', 
+                        display: 'flex', 
+                        justifyContent: 'space-between', 
+                        alignItems: 'center',
+                        borderBottom: '1px solid rgba(245, 158, 11, 0.15)'
+                      }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                          <Flame size={15} color="#f59e0b" />
+                          <span style={{ fontSize: '0.82rem', fontWeight: 700, color: '#f59e0b' }}>
+                            APACHE SPARK MLLIB
+                          </span>
+                        </div>
+                        <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>6 RDD Partitions</span>
+                      </div>
+
+                      {/* Image Frame */}
+                      <div 
+                        style={{
+                          position: 'relative',
+                          background: '#040706',
+                          height: 240,
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          cursor: 'pointer'
+                        }}
+                        onClick={() => setZoomedImage({ url: sparkUrl, title: pair.spark.title, desc: pair.spark.desc })}
+                      >
+                        <img 
+                          src={sparkUrl} 
+                          alt={pair.spark.title}
+                          style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }}
+                        />
+                        <div style={{
+                          position: 'absolute',
+                          top: 10,
+                          right: 10,
+                          background: 'rgba(0,0,0,0.65)',
+                          borderRadius: '8px',
+                          padding: '5px 8px',
+                          color: '#ffffff',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: 4,
+                          fontSize: '0.72rem'
+                        }}>
+                          <Maximize2 size={12} />
+                          <span>Phóng to</span>
+                        </div>
+                      </div>
+
+                      {/* Caption & Download */}
+                      <div style={{ padding: '14px', display: 'flex', flexDirection: 'column', flex: 1, justifyContent: 'space-between' }}>
+                        <p style={{ fontSize: '0.79rem', color: 'var(--text-secondary)', lineHeight: 1.5, marginBottom: 10 }}>
+                          {pair.spark.desc}
+                        </p>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: 8, borderTop: '1px solid var(--border-card)' }}>
+                          <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)', fontFamily: 'var(--font-mono)' }}>300 DPI • PNG</span>
+                          <a
+                            href={sparkUrl}
+                            download={pair.spark.file}
+                            className="btn btn-secondary"
+                            style={{ padding: '5px 10px', fontSize: '0.74rem', display: 'flex', alignItems: 'center', gap: 5 }}
+                          >
+                            <Download size={13} />
+                            <span>Tải ảnh PNG</span>
+                          </a>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Academic Comparative Insight Box */}
+                  <div style={{
+                    padding: '12px 16px',
+                    background: 'rgba(16, 185, 129, 0.06)',
+                    borderLeft: '4px solid #10b981',
+                    borderRadius: '0 8px 8px 0',
+                    display: 'flex',
+                    alignItems: 'flex-start',
+                    gap: 10
                   }}>
-                    <Maximize2 size={13} />
-                    <span>Phóng to</span>
+                    <Info size={17} color="#10b981" style={{ flexShrink: 0, marginTop: 2 }} />
+                    <div style={{ fontSize: '0.82rem', lineHeight: 1.6 }}>
+                      <strong style={{ color: 'var(--text-primary)' }}>Nhận xét đối chứng học thuật: </strong>
+                      <span style={{ color: 'var(--text-secondary)' }}>{pair.insight}</span>
+                    </div>
                   </div>
                 </div>
+              );
+            })}
+          </div>
+        )}
 
-                {/* Card Content */}
-                <div style={{ padding: '16px', display: 'flex', flexDirection: 'column', flex: 1, justifyContent: 'space-between' }}>
-                  <div>
-                    <h4 style={{ fontSize: '0.96rem', color: 'var(--text-primary)', fontWeight: 700, marginBottom: 6 }}>
-                      {chart.title}
-                    </h4>
-                    <p style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', lineHeight: 1.5, marginBottom: 12 }}>
-                      {chart.desc}
-                    </p>
+        {/* ====================================================================== */}
+        {/* VIEW 2 & 3: SINGLE GROUP GALLERY (XEM RIÊNG 6 ẢNH SPARK HOẶC THƯỜNG)     */}
+        {/* ====================================================================== */}
+        {chartViewMode !== 'side-by-side' && (
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: 20 }}>
+            {singleCharts.map((chart) => {
+              const imageUrl = `${API_BASE_URL}/outputs/${chart.file}`;
+              return (
+                <div 
+                  key={chart.id}
+                  className="glass-panel" 
+                  style={{ 
+                    overflow: 'hidden', 
+                    display: 'flex', 
+                    flexDirection: 'column',
+                    border: '1px solid var(--border-card)',
+                    transition: 'all 0.25s ease'
+                  }}
+                >
+                  {/* Image Container with Hover Overlay */}
+                  <div 
+                    style={{ 
+                      position: 'relative', 
+                      background: '#040706', 
+                      height: 220, 
+                      display: 'flex', 
+                      alignItems: 'center', 
+                      justifyContent: 'center',
+                      cursor: 'pointer'
+                    }}
+                    onClick={() => setZoomedImage({ url: imageUrl, title: chart.title, desc: chart.desc })}
+                  >
+                    <img 
+                      src={imageUrl} 
+                      alt={chart.title}
+                      style={{ 
+                        maxWidth: '100%', 
+                        maxHeight: '100%', 
+                        objectFit: 'contain' 
+                      }}
+                      onError={(e) => {
+                        e.target.style.display = 'none';
+                        e.target.parentElement.innerHTML = '<div style="padding: 20px; color: var(--text-muted); font-size: 0.8rem; text-align: center;">📊 Biểu đồ đang được kết xuất...</div>';
+                      }}
+                    />
+                    <div style={{
+                      position: 'absolute',
+                      top: 10,
+                      right: 10,
+                      background: 'rgba(0,0,0,0.65)',
+                      borderRadius: '8px',
+                      padding: '6px',
+                      color: '#ffffff',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 4,
+                      fontSize: '0.72rem'
+                    }}>
+                      <Maximize2 size={13} />
+                      <span>Phóng to</span>
+                    </div>
                   </div>
 
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: 10, borderTop: '1px solid var(--border-card)' }}>
-                    <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)', fontFamily: 'var(--font-mono)' }}>
-                      300 DPI • PNG
-                    </span>
-                    <a
-                      href={imageUrl}
-                      download={chart.file}
-                      className="btn btn-secondary"
-                      style={{ padding: '6px 12px', fontSize: '0.75rem', display: 'flex', alignItems: 'center', gap: 6 }}
-                    >
-                      <Download size={13} />
-                      <span>Tải ảnh PNG</span>
-                    </a>
+                  {/* Card Content */}
+                  <div style={{ padding: '16px', display: 'flex', flexDirection: 'column', flex: 1, justifyContent: 'space-between' }}>
+                    <div>
+                      <h4 style={{ fontSize: '0.96rem', color: 'var(--text-primary)', fontWeight: 700, marginBottom: 6 }}>
+                        {chart.title}
+                      </h4>
+                      <p style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', lineHeight: 1.5, marginBottom: 12 }}>
+                        {chart.desc}
+                      </p>
+                    </div>
+
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: 10, borderTop: '1px solid var(--border-card)' }}>
+                      <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)', fontFamily: 'var(--font-mono)' }}>
+                        300 DPI • PNG
+                      </span>
+                      <a
+                        href={imageUrl}
+                        download={chart.file}
+                        className="btn btn-secondary"
+                        style={{ padding: '6px 12px', fontSize: '0.75rem', display: 'flex', alignItems: 'center', gap: 6 }}
+                      >
+                        <Download size={13} />
+                        <span>Tải ảnh PNG</span>
+                      </a>
+                    </div>
                   </div>
                 </div>
-              </div>
-            );
-          })}
-        </div>
+              );
+            })}
+          </div>
+        )}
       </div>
 
       {/* FULL-SCREEN IMAGE MODAL */}
