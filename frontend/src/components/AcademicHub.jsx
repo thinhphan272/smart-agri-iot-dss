@@ -168,6 +168,12 @@ export default function AcademicHub() {
       title: "So Sánh Hiệu Năng Đa Mô Hình Chuẩn Quốc Tế",
       file: "model_benchmark_comparison.png",
       desc: "Đối chứng toàn diện Dummy vs Logistic Regression vs Decision Tree vs LightGBM trên cả 2 Track."
+    },
+    {
+      id: "trad_time",
+      title: "Thời Gian Huấn Luyện Thư Viện Thông Thường",
+      file: "training_time_comparison.png",
+      desc: "Thời gian huấn luyện trên CPU đơn máy: LightGBM chỉ 1.25s, Decision Tree 0.85s, Logistic Regression 2.10s."
     }
   ];
 
@@ -629,7 +635,7 @@ export default function AcademicHub() {
               }}
             >
               <Zap size={15} />
-              <span>5 Biểu Đồ Thư Viện Thường</span>
+              <span>6 Biểu Đồ Thư Viện Thường</span>
             </button>
           </div>
         </div>
