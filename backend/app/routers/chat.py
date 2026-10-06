@@ -36,8 +36,13 @@ def send_chat_message(
             if user:
                 user_id = user.id
 
-    # 2. Xử lý câu trả lời qua Chat Service
-    bot_result = get_chatbot_response(request.message)
+    # 2. Xử lý câu trả lời qua Chat Service (hỗ trợ đa mô hình và nhớ ngữ cảnh)
+    bot_result = get_chatbot_response(
+        request.message, 
+        model=request.model or "gemini-1.5-flash", 
+        history=request.history,
+        api_key=request.api_key
+    )
 
     # 3. Ghi nhật ký vào database
     chat_record = ChatHistory(
