@@ -1,6 +1,13 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from backend.app.routers import auth, predict, batch, chat, websocket
+from backend.app.database import engine, Base
+
+# Tự động khởi tạo schema bảng nếu chưa tồn tại (chạy được ngay cho người dùng mới)
+try:
+    Base.metadata.create_all(bind=engine)
+except Exception as e:
+    print(f"[DB Auto-Migration] {e}")
 
 app = FastAPI(
     title="AgriGuard-IoT Backend API",

@@ -81,10 +81,22 @@ def quick_demo_login(req: QuickDemoLoginRequest, db: Session = Depends(get_db)):
     target_role = req.role.lower()
     user = db.query(User).filter(User.role == target_role).first()
     if not user:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Không tìm thấy tài khoản mẫu cho vai trò '{target_role}'!"
+        # Tự động tạo tài khoản mẫu nếu cơ sở dữ liệu mới khởi tạo (tiện lợi cho bạn bè clone về chạy ngay)
+        display_names = {
+            "admin": "Quản trị viên Hệ thống (Admin)",
+            "engineer": "Kỹ sư Nông học Thực địa",
+            "farmer": "Chủ Nông hộ / Nông dân"
+        }
+        user = User(
+            email=f"{target_role}@agri-iot.vn",
+            hashed_password=hash_password(f"{target_role}123"),
+            full_name=display_names.get(target_role, target_role.title()),
+            role=target_role,
+            auth_provider="local"
         )
+        db.add(user)
+        db.commit()
+        db.refresh(user)
     
     access_token = create_access_token(
         data={"sub": user.email, "role": user.role, "user_id": user.id}

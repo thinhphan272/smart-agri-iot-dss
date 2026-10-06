@@ -1,8 +1,13 @@
 from datetime import datetime
-from sqlalchemy import Column, Integer, BigInteger, String, REAL, Text, Boolean, DateTime, ForeignKey
-from sqlalchemy.dialects.postgresql import JSONB
+from sqlalchemy import Column, Integer, BigInteger, String, REAL, Text, Boolean, DateTime, ForeignKey, JSON
 from sqlalchemy.sql import func
 from .database import Base
+
+try:
+    from sqlalchemy.dialects.postgresql import JSONB
+    JSON_FIELD = JSON().with_variant(JSONB, "postgresql")
+except Exception:
+    JSON_FIELD = JSON
 
 
 # ==============================================================================
@@ -46,7 +51,7 @@ class SensorDiagnostic(Base):
     stress_probability = Column(REAL, nullable=False)                   # Xác suất 0.00 -> 1.00
     is_stress = Column(Boolean, nullable=False)                         # True nếu bị stress
     risk_level = Column(String(20), nullable=False)                     # 'Optimal' | 'Warning' | 'Critical'
-    root_causes = Column(JSONB, default=list)                           # Danh sách nguyên nhân bắt bệnh
+    root_causes = Column(JSON_FIELD, default=list)                      # Danh sách nguyên nhân bắt bệnh
     remediation = Column(Text, nullable=True)                           # Phác đồ can thiệp nông học
 
 
