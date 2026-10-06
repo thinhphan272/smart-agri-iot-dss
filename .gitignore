@@ -11,6 +11,7 @@ frontend/dist/
 # File dữ liệu thô lớn
 *.csv
 !outputs/*.csv
+!data/*.csv
 
 # File cấu hình hệ thống & database nội bộ
 .vscode/
