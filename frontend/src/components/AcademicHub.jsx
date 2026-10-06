@@ -24,7 +24,7 @@ import { useLanguage } from '../context/LanguageContext';
 import { API_BASE_URL } from '../services/api';
 
 export default function AcademicHub() {
-  const { t } = useLanguage();
+  const { lang, t } = useLanguage();
   const [activeSubTab, setActiveSubTab] = useState('spark-vs-traditional'); // 'spark-vs-traditional' | 'track1-vs-track2'
   const [chartViewMode, setChartViewMode] = useState('side-by-side'); // 'side-by-side' | 'spark' | 'traditional'
   const [zoomedImage, setZoomedImage] = useState(null);
@@ -32,9 +32,9 @@ export default function AcademicHub() {
   // Dữ liệu so sánh đa mô hình toàn diện (Thư viện thông thường vs Apache Spark MLlib)
   const fullBenchmarkData = [
     {
-      model: "LightGBM Classifier (SOTA Đề Xuất)",
-      engine: "Thư viện Thông thường (C++)",
-      env: "Single-Node / Đơn luồng RAM",
+      model: lang === 'vi' ? "LightGBM Classifier (SOTA Đề Xuất)" : "LightGBM Classifier (Proposed SOTA)",
+      engine: lang === 'vi' ? "Thư viện Thông thường (C++)" : "Conventional Library (C++)",
+      env: lang === 'vi' ? "Single-Node / Đơn luồng RAM" : "Single-Node / In-Memory RAM",
       partitions: "1 Partition (Monolithic)",
       trainTime: "1.25s",
       accuracy: "94.80%",
@@ -44,7 +44,7 @@ export default function AcademicHub() {
       rocAuc: "0.830",
       prAuc: "0.719",
       isBest: true,
-      badge: "SOTA Phục vụ Realtime Web/Mobile",
+      badge: t('badgeSotaRealtime'),
       badgeColor: "var(--color-optimal)"
     },
     {
@@ -60,7 +60,7 @@ export default function AcademicHub() {
       rocAuc: "0.834",
       prAuc: "0.733",
       isSparkBest: true,
-      badge: "Mô hình Phân tán Tốt nhất",
+      badge: t('badgeSparkBest'),
       badgeColor: "#f59e0b"
     },
     {
@@ -75,7 +75,7 @@ export default function AcademicHub() {
       f1: "0.936",
       rocAuc: "0.830",
       prAuc: "0.719",
-      badge: "Ensemble Phân tán",
+      badge: t('badgeEnsemble'),
       badgeColor: "#38bdf8"
     },
     {
@@ -90,7 +90,7 @@ export default function AcademicHub() {
       f1: "0.936",
       rocAuc: "0.214",
       prAuc: "0.086",
-      badge: "Cây Quyết định Phân tán",
+      badge: t('badgeDecisionTree'),
       badgeColor: "#94a3b8"
     },
     {
@@ -105,12 +105,12 @@ export default function AcademicHub() {
       f1: "0.884",
       rocAuc: "0.801",
       prAuc: "0.639",
-      badge: "Tuyến tính Phân tán",
+      badge: lang === 'vi' ? "Tuyến tính Phân tán" : "Distributed Linear",
       badgeColor: "#a855f7"
     },
     {
       model: "Scikit-Learn Logistic Regression",
-      engine: "Thư viện Thông thường (Sklearn)",
+      engine: lang === 'vi' ? "Thư viện Thông thường (Sklearn)" : "Conventional Library (Sklearn)",
       env: "Single-Node RAM",
       partitions: "1 Partition",
       trainTime: "2.10s",
@@ -120,12 +120,12 @@ export default function AcademicHub() {
       f1: "0.057",
       rocAuc: "0.501",
       prAuc: "0.032",
-      badge: "Baseline Đơn máy",
+      badge: lang === 'vi' ? "Baseline Đơn máy" : "Single-Node Baseline",
       badgeColor: "#64748b"
     },
     {
       model: "Dummy Baseline (Majority Class)",
-      engine: "Thư viện Thông thường",
+      engine: lang === 'vi' ? "Thư viện Thông thường" : "Conventional Library",
       env: "Rule-based",
       partitions: "-",
       trainTime: "0.05s",
@@ -135,7 +135,7 @@ export default function AcademicHub() {
       f1: "0.000",
       rocAuc: "0.500",
       prAuc: "0.031",
-      badge: "Nghịch lý 97% Accuracy",
+      badge: lang === 'vi' ? "Nghịch lý 97% Accuracy" : "97% Accuracy Paradox",
       badgeColor: "#ef4444"
     }
   ];
@@ -144,98 +144,158 @@ export default function AcademicHub() {
   const pairedCharts = [
     {
       id: "pair_loss",
-      title: "1. Đường Cong Hội Tụ Loss Function (Loss Convergence Curve)",
-      subtitle: "So sánh khả năng học hội tụ và kiểm soát Overfitting qua các vòng lặp Boosting",
-      insight: "Cả LightGBM (150 vòng) và Spark GBT (30 vòng phân tán) đều hội tụ mượt mà theo hàm mũ, hàm mất mát Log-loss giảm dần ổn định và không gặp hiện tượng Overfitting.",
+      title: lang === 'vi' 
+        ? "1. Đường Cong Hội Tụ Loss Function (Loss Convergence Curve)" 
+        : "1. Loss Function Convergence Curve",
+      subtitle: lang === 'vi'
+        ? "So sánh khả năng học hội tụ và kiểm soát Overfitting qua các vòng lặp Boosting"
+        : "Comparing learning convergence and overfitting control across boosting iterations",
+      insight: lang === 'vi'
+        ? "Cả LightGBM (150 vòng) và Spark GBT (30 vòng phân tán) đều hội tụ mượt mà theo hàm mũ, hàm mất mát Log-loss giảm dần ổn định và không gặp hiện tượng Overfitting."
+        : "Both LightGBM (150 rounds) and Spark GBT (30 distributed rounds) exhibit smooth exponential convergence, with log-loss decaying stably without overfitting.",
       traditional: {
-        title: "Thư Viện Thường: LightGBM Loss Convergence",
+        title: lang === 'vi' ? "Thư Viện Thường: LightGBM Loss Convergence" : "Conventional: LightGBM Loss Convergence",
         file: "loss_convergence_curve.png",
-        desc: "Hàm mất mát Log-loss giảm đều qua 150 vòng lặp, minh chứng mô hình học hội tụ ổn định không bị Overfitting."
+        desc: lang === 'vi'
+          ? "Hàm mất mát Log-loss giảm đều qua 150 vòng lặp, minh chứng mô hình học hội tụ ổn định không bị Overfitting."
+          : "Log-loss decays steadily across 150 iterations, demonstrating stable learning convergence without overfitting."
       },
       spark: {
         title: "Apache Spark MLlib: GBT Loss Convergence",
         file: "spark_loss_convergence_curve.png",
-        desc: "Hàm mất mát Log-loss giảm đều qua 30 vòng lặp Boosting phân tán, ROC-AUC hội tụ tiệm cận 0.8340."
+        desc: lang === 'vi'
+          ? "Hàm mất mát Log-loss giảm đều qua 30 vòng lặp Boosting phân tán, ROC-AUC hội tụ tiệm cận 0.8340."
+          : "Distributed Log-loss decays stably across 30 distributed boosting iterations, ROC-AUC converging near 0.8340."
       }
     },
     {
       id: "pair_cm",
-      title: "2. Ma Trận Nhầm Lẫn Trên Tập Test (Confusion Matrix Comparison)",
-      subtitle: "Đối chiếu năng lực bắt bệnh stress sinh thái thực tế trên tập Holdout Test Set",
-      insight: "Tỷ lệ bắt trúng cây stress (Recall/Sensitivity) của 2 mô hình tương đương nhau (~65.8% vs 66.0%), trong khi tỷ lệ dự đoán đúng cây khỏe (Specificity) đạt trên 98.6%. Cả 2 đều loại bỏ triệt để hiện tượng đoán bừa.",
+      title: lang === 'vi'
+        ? "2. Ma Trận Nhầm Lẫn Trên Tập Test (Confusion Matrix Comparison)"
+        : "2. Confusion Matrix Comparison (Test Set)",
+      subtitle: lang === 'vi'
+        ? "Đối chiếu năng lực bắt bệnh stress sinh thái thực tế trên tập Holdout Test Set"
+        : "Evaluating real-world eco-stress diagnostic sensitivity on holdout test set",
+      insight: lang === 'vi'
+        ? "Tỷ lệ bắt trúng cây stress (Recall/Sensitivity) của 2 mô hình tương đương nhau (~65.8% vs 66.0%), trong khi tỷ lệ dự đoán đúng cây khỏe (Specificity) đạt trên 98.6%. Cả 2 đều loại bỏ triệt để hiện tượng đoán bừa."
+        : "Stress detection recall (~65.8% vs 66.0%) and healthy specificity (>98.6%) are practically identical between models. Both eliminate majority-class guessing.",
       traditional: {
-        title: "Thư Viện Thường: LightGBM Confusion Matrix",
+        title: lang === 'vi' ? "Thư Viện Thường: LightGBM Confusion Matrix" : "Conventional: LightGBM Confusion Matrix",
         file: "confusion_matrix_test.png",
-        desc: "Độ nhạy đạt 65.78% ở ngưỡng T*=0.34, phát hiện chính xác cây stress sinh thái trên 60,000 mẫu kiểm thử."
+        desc: lang === 'vi'
+          ? "Độ nhạy đạt 65.78% ở ngưỡng T*=0.34, phát hiện chính xác cây stress sinh thái trên 60,000 mẫu kiểm thử."
+          : "Sensitivity reaches 65.78% at threshold T*=0.34, accurately diagnosing eco-stressed plants across 60,000 test samples."
       },
       spark: {
         title: "Apache Spark MLlib: GBT Confusion Matrix",
         file: "spark_confusion_matrix.png",
-        desc: "Phân loại phân tán trên 6 Partitions, phát hiện 2,740 cây stress (Recall 66.02%) mượt mà, không đè chữ."
+        desc: lang === 'vi'
+          ? "Phân loại phân tán trên 6 Partitions, phát hiện 2,740 cây stress (Recall 66.02%) mượt mà, không đè chữ."
+          : "Distributed classification across 6 partitions identifies 2,740 stressed plants (Recall 66.02%) cleanly."
       }
     },
     {
       id: "pair_roc",
-      title: "3. Đường Cong ROC & Precision-Recall Kép (PR & ROC Curves)",
-      subtitle: "Đánh giá chất lượng phân loại toàn diện độc lập với ngưỡng quyết định",
-      insight: "Spark GBT đạt ROC-AUC 0.8340 và PR-AUC 0.7330, tiệm cận hoàn hảo với LightGBM (ROC-AUC 0.8299, PR-AUC 0.7192). Cả 2 đều vượt xa ngẫu nhiên (0.50) và giữ vững độ phân loại cao.",
+      title: lang === 'vi'
+        ? "3. Đường Cong ROC & Precision-Recall Kép (PR & ROC Curves)"
+        : "3. Dual ROC & Precision-Recall Curves (PR & ROC)",
+      subtitle: lang === 'vi'
+        ? "Đánh giá chất lượng phân loại toàn diện độc lập với ngưỡng quyết định"
+        : "Evaluating comprehensive classification quality independent of decision threshold",
+      insight: lang === 'vi'
+        ? "Spark GBT đạt ROC-AUC 0.8340 và PR-AUC 0.7330, tiệm cận hoàn hảo với LightGBM (ROC-AUC 0.8299, PR-AUC 0.7192). Cả 2 đều vượt xa ngẫu nhiên (0.50) và giữ vững độ phân loại cao."
+        : "Spark GBT attains ROC-AUC 0.8340 and PR-AUC 0.7330, showing virtually identical parity with LightGBM (ROC-AUC 0.8299, PR-AUC 0.7192). Both far outperform random baseline (0.50).",
       traditional: {
-        title: "Thư Viện Thường: PR & ROC Curves",
+        title: lang === 'vi' ? "Thư Viện Thường: PR & ROC Curves" : "Conventional: PR & ROC Curves",
         file: "pr_and_roc_curves.png",
-        desc: "ROC-AUC đạt 0.830 và PR-AUC đạt 0.719, vượt xa ngẫu nhiên (0.50) và giữ vững độ phân loại cao."
+        desc: lang === 'vi'
+          ? "ROC-AUC đạt 0.830 và PR-AUC đạt 0.719, vượt xa ngẫu nhiên (0.50) và giữ vững độ phân loại cao."
+          : "ROC-AUC reaches 0.830 and PR-AUC reaches 0.719, establishing robust discriminative capability."
       },
       spark: {
         title: "Apache Spark MLlib: PR & ROC Curves",
         file: "spark_pr_and_roc_curves.png",
-        desc: "Spark GBT đạt ROC-AUC = 0.8340 và PR-AUC = 0.7330, chứng minh tính toàn vẹn toán học phân tán."
+        desc: lang === 'vi'
+          ? "Spark GBT đạt ROC-AUC = 0.8340 và PR-AUC = 0.7330, chứng minh tính toàn vẹn toán học phân tán."
+          : "Spark GBT reaches ROC-AUC = 0.8340 and PR-AUC = 0.7330, confirming mathematical parity of distributed training."
       }
     },
     {
       id: "pair_feat",
-      title: "4. Tầm Quan Trọng Đặc Trưng Nông Học (Feature Importance)",
-      subtitle: "Xác định các yếu tố môi trường sinh thái có trọng số quyết định đến sức khỏe cây trồng",
-      insight: "Cả hai cách tiếp cận đều thống nhất: Độ chua đất (Soil Acidity Stress), Chỉ số Hạn hán (Drought Risk) và Mức độ tổn thương ô nhiễm là 3 yếu tố quyết định hàng đầu trong mô hình cây.",
+      title: lang === 'vi'
+        ? "4. Tầm Quan Trọng Đặc Trưng Nông Học (Feature Importance)"
+        : "4. Agronomic Feature Importance",
+      subtitle: lang === 'vi'
+        ? "Xác định các yếu tố môi trường sinh thái có trọng số quyết định đến sức khỏe cây trồng"
+        : "Identifying pivotal ecological factors dictating crop physiological health",
+      insight: lang === 'vi'
+        ? "Cả hai cách tiếp cận đều thống nhất: Độ chua đất (Soil Acidity Stress), Chỉ số Hạn hán (Drought Risk) và Mức độ tổn thương ô nhiễm là 3 yếu tố quyết định hàng đầu trong mô hình cây."
+        : "Both architectures reach full consensus: Soil Acidity Stress, Drought Risk, and Environmental Pollution are the top 3 dominant split factors.",
       traditional: {
-        title: "Thư Viện Thường: 20 Đặc Trưng Sinh Thái",
+        title: lang === 'vi' ? "Thư Viện Thường: 20 Đặc Trưng Sinh Thái" : "Conventional: 20 Ecological Features",
         file: "feature_importance.png",
-        desc: "Độ chua đất (pH Stress), Hạn hán (Drought Risk) và Ma sát thủy văn chiếm vị trí đầu bảng trong cây quyết định."
+        desc: lang === 'vi'
+          ? "Độ chua đất (pH Stress), Hạn hán (Drought Risk) và Ma sát thủy văn chiếm vị trí đầu bảng trong cây quyết định."
+          : "Soil pH Stress, Drought Risk, and Hydrological distance dominate top importance ranks."
       },
       spark: {
         title: "Apache Spark MLlib: Tree Feature Importances",
         file: "spark_feature_importance.png",
-        desc: "Trích xuất từ VectorAssembler và GBTClassificationModel trên Apache Spark Pipeline."
+        desc: lang === 'vi'
+          ? "Trích xuất từ VectorAssembler và GBTClassificationModel trên Apache Spark Pipeline."
+          : "Extracted from VectorAssembler and GBTClassificationModel within Apache Spark ML Pipeline."
       }
     },
     {
       id: "pair_bench",
-      title: "5. Tổng Hợp So Sánh Đa Mô Hình (Multi-Model Benchmark)",
-      subtitle: "Đối chiếu hiệu năng giữa các giải thuật trong từng môi trường tính toán",
-      insight: "Ở cả 2 môi trường, thuật toán Boosting (LightGBM và Spark GBT) đều vượt trội hoàn toàn so với Cây quyết định đơn lẻ (Decision Tree) và Hồi quy Tuyến tính (Logistic Regression).",
+      title: lang === 'vi'
+        ? "5. Tổng Hợp So Sánh Đa Mô Hình (Multi-Model Benchmark)"
+        : "5. Multi-Model Benchmark Comparison",
+      subtitle: lang === 'vi'
+        ? "Đối chiếu hiệu năng giữa các giải thuật trong từng môi trường tính toán"
+        : "Cross-algorithm performance evaluation across execution environments",
+      insight: lang === 'vi'
+        ? "Ở cả 2 môi trường, thuật toán Boosting (LightGBM và Spark GBT) đều vượt trội hoàn toàn so với Cây quyết định đơn lẻ (Decision Tree) và Hồi quy Tuyến tính (Logistic Regression)."
+        : "Across both runtime environments, boosting ensembles (LightGBM and Spark GBT) decisively outperform standalone Decision Trees and Logistic Regression.",
       traditional: {
-        title: "Thư Viện Thường: Đa Mô Hình Chuẩn Quốc Tế",
+        title: lang === 'vi' ? "Thư Viện Thường: Đa Mô Hình Chuẩn Quốc Tế" : "Conventional: Multi-Model Benchmark",
         file: "model_benchmark_comparison.png",
-        desc: "Đối chứng toàn diện Dummy vs Logistic Regression vs Decision Tree vs LightGBM trên cả 2 Track."
+        desc: lang === 'vi'
+          ? "Đối chứng toàn diện Dummy vs Logistic Regression vs Decision Tree vs LightGBM trên cả 2 Track."
+          : "Comprehensive benchmark comparing Dummy, Logistic Regression, Decision Tree, and LightGBM across both tracks."
       },
       spark: {
-        title: "Apache Spark MLlib: Benchmark 4 Mô Hình",
+        title: lang === 'vi' ? "Apache Spark MLlib: Benchmark 4 Mô Hình" : "Apache Spark MLlib: 4-Model Benchmark",
         file: "spark_model_benchmark.png",
-        desc: "Đối sánh trực quan giữa Logistic Regression, Decision Tree, Random Forest và GBT trên Spark."
+        desc: lang === 'vi'
+          ? "Đối sánh trực quan giữa Logistic Regression, Decision Tree, Random Forest và GBT trên Spark."
+          : "Visual benchmark comparing Logistic Regression, Decision Tree, Random Forest, and GBT in Spark MLlib."
       }
     },
     {
       id: "pair_time",
-      title: "6. Thời Gian Huấn Luyện & Chi Phí Phân Tán (Training Time & Distributed Overhead)",
-      subtitle: "Minh chứng bản chất Big Data: Đơn luồng C++ nhanh ở dữ liệu nhỏ, Spark mở rộng ở dữ liệu lớn",
-      insight: "Tập 200k dòng (~23.5MB) nằm vừa trong RAM nên thư viện thường train chỉ mất 1.25s. Spark MLlib mất 21.42s do chi phí khởi tạo JVM, Py4J và chia 6 Partitions (Distributed Overhead).",
+      title: lang === 'vi'
+        ? "6. Thời Gian Huấn Luyện & Chi Phí Phân Tán (Training Time & Distributed Overhead)"
+        : "6. Training Time & Distributed Overhead",
+      subtitle: lang === 'vi'
+        ? "Minh chứng bản chất Big Data: Đơn luồng C++ nhanh ở dữ liệu nhỏ, Spark mở rộng ở dữ liệu lớn"
+        : "Demonstrating Big Data tradeoffs: Single-node C++ excels on small data, Spark scales on big data",
+      insight: lang === 'vi'
+        ? "Tập 200k dòng (~23.5MB) nằm vừa trong RAM nên thư viện thường train chỉ mất 1.25s. Spark MLlib mất 21.42s do chi phí khởi tạo JVM, Py4J và chia 6 Partitions (Distributed Overhead)."
+        : "The 200k dataset (~23.5MB) fits in single-node RAM (trains in 1.25s). Spark MLlib takes 21.42s due to JVM startup, Py4J serialization, and 6-partition coordination (Distributed Overhead).",
       traditional: {
-        title: "Thư Viện Thường: Thời Gian Huấn Luyện Đơn Máy",
+        title: lang === 'vi' ? "Thư Viện Thường: Thời Gian Huấn Luyện Đơn Máy" : "Conventional: Single-Node Training Time",
         file: "training_time_comparison.png",
-        desc: "Thời gian huấn luyện trên CPU đơn máy: LightGBM chỉ 1.25s, Decision Tree 0.85s, Logistic Regression 2.10s."
+        desc: lang === 'vi'
+          ? "Thời gian huấn luyện trên CPU đơn máy: LightGBM chỉ 1.25s, Decision Tree 0.85s, Logistic Regression 2.10s."
+          : "Single-node CPU training time: LightGBM 1.25s, Decision Tree 0.85s, Logistic Regression 2.10s."
       },
       spark: {
-        title: "Apache Spark MLlib: Thời Gian Huấn Luyện Phân Tán",
+        title: lang === 'vi' ? "Apache Spark MLlib: Thời Gian Huấn Luyện Phân Tán" : "Apache Spark MLlib: Distributed Training Time",
         file: "spark_training_time_comparison.png",
-        desc: "Đo lường thời gian huấn luyện 4 mô hình Spark trên 6 Partitions (Decision Tree 3.3s, GBT 21.4s)."
+        desc: lang === 'vi'
+          ? "Đo lường thời gian huấn luyện 4 mô hình Spark trên 6 Partitions (Decision Tree 3.3s, GBT 21.4s)."
+          : "Distributed training time for 4 Spark models on 6 partitions (Decision Tree 3.3s, GBT 21.4s)."
       }
     }
   ];
@@ -278,14 +338,14 @@ export default function AcademicHub() {
             </div>
             <div>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
-                <span className="badge badge-optimal">HUIT Big Data Defense Ready</span>
-                <span className="badge badge-warning">200,000 Bản Ghi Cảm Biến</span>
+                <span className="badge badge-optimal">{t('academicDefenseBadge')}</span>
+                <span className="badge badge-warning">{t('academicRecordsCount')}</span>
               </div>
               <h2 style={{ fontSize: '1.45rem', color: 'var(--text-primary)', fontWeight: 700 }}>
-                Trung Tâm Báo Cáo Đối Chứng Học Thuật & Xử Lý Phân Tán
+                {t('academicTitle')}
               </h2>
               <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
-                Đề tài Nông nghiệp Thông minh: Đối chiếu Thư viện Thông thường (LightGBM) vs Apache Spark MLlib (6 Partitions)
+                {t('academicSubtitle')}
               </p>
             </div>
           </div>
@@ -299,7 +359,7 @@ export default function AcademicHub() {
               style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: '0.82rem', padding: '10px 16px' }}
             >
               <Download size={16} />
-              <span>Tải Artifacts LightGBM (.ZIP)</span>
+              <span>{t('academicBtnDownloadLgb')}</span>
             </a>
             <a
               href={`${API_BASE_URL}/api/predict/download-artifacts/spark`}
@@ -308,7 +368,7 @@ export default function AcademicHub() {
               style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: '0.82rem', padding: '10px 16px', background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)' }}
             >
               <Flame size={16} />
-              <span>Tải Artifacts Spark MLlib (.ZIP)</span>
+              <span>{t('academicBtnDownloadSpark')}</span>
             </a>
           </div>
         </div>
@@ -339,7 +399,7 @@ export default function AcademicHub() {
             }}
           >
             <Server size={18} />
-            <span>ĐỐI CHỨNG: THƯ VIỆN THƯỜNG VS APACHE SPARK MLLIB (TRỌNG TÂM BIG DATA)</span>
+            <span>{t('subTabSparkVsTrad')}</span>
           </button>
 
           <button
@@ -359,7 +419,7 @@ export default function AcademicHub() {
             }}
           >
             <Database size={18} />
-            <span>ĐỐI CHỨNG BÀI TOÁN: TRACK 1 (DỮ LIỆU GỐC) VS TRACK 2 (ECO-STRESS SOTA)</span>
+            <span>{t('subTabTrack1VsTrack2')}</span>
           </button>
         </div>
       </div>
@@ -372,80 +432,80 @@ export default function AcademicHub() {
             {/* Card 1: LightGBM SOTA */}
             <div className="glass-panel" style={{ padding: '20px', borderTop: '3px solid var(--color-optimal)' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
-                <span style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', fontWeight: 600 }}>THƯ VIỆN THÔNG THƯỜNG</span>
-                <span className="badge badge-optimal">Realtime Serving</span>
+                <span style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', fontWeight: 600 }}>{t('academicStatTradLib')}</span>
+                <span className="badge badge-optimal">{t('academicStatRealtimeServing')}</span>
               </div>
               <h3 style={{ fontSize: '1.3rem', color: 'var(--text-primary)', marginBottom: 4 }}>
                 LightGBM SOTA
               </h3>
               <div style={{ display: 'flex', alignItems: 'baseline', gap: 10, margin: '8px 0' }}>
                 <span style={{ fontSize: '1.8rem', fontWeight: 800, color: 'var(--color-optimal)' }}>1.25s</span>
-                <span style={{ fontSize: '0.82rem', color: 'var(--text-muted)' }}>Thời gian train</span>
+                <span style={{ fontSize: '0.82rem', color: 'var(--text-muted)' }}>{t('academicStatTrainTime')}</span>
               </div>
               <div style={{ fontSize: '0.82rem', color: 'var(--text-secondary)', display: 'flex', flexDirection: 'column', gap: 4 }}>
                 <div>• Accuracy: <strong>94.80%</strong> | ROC-AUC: <strong>0.830</strong></div>
-                <div>• Phản hồi suy luận: <strong>&lt; 20ms</strong> trên Web & Mobile</div>
-                <div>• Kiến trúc: Single-Node C++ biên dịch tối ưu</div>
+                <div>{t('academicTradInferenceNote')}</div>
+                <div>{t('academicTradArchNote')}</div>
               </div>
             </div>
 
             {/* Card 2: Spark MLlib */}
             <div className="glass-panel" style={{ padding: '20px', borderTop: '3px solid #f59e0b' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
-                <span style={{ fontSize: '0.78rem', color: '#f59e0b', fontWeight: 600 }}>APACHE SPARK MLLIB</span>
-                <span className="badge badge-warning">6 Partitions RDD</span>
+                <span style={{ fontSize: '0.78rem', color: '#f59e0b', fontWeight: 600 }}>{t('academicStatSparkTitle')}</span>
+                <span className="badge badge-warning">{t('academicStatSparkBadge')}</span>
               </div>
               <h3 style={{ fontSize: '1.3rem', color: 'var(--text-primary)', marginBottom: 4 }}>
                 Spark GBTClassifier
               </h3>
               <div style={{ display: 'flex', alignItems: 'baseline', gap: 10, margin: '8px 0' }}>
                 <span style={{ fontSize: '1.8rem', fontWeight: 800, color: '#f59e0b' }}>21.42s</span>
-                <span style={{ fontSize: '0.82rem', color: 'var(--text-muted)' }}>Thời gian train</span>
+                <span style={{ fontSize: '0.82rem', color: 'var(--text-muted)' }}>{t('academicStatTrainTime')}</span>
               </div>
               <div style={{ fontSize: '0.82rem', color: 'var(--text-secondary)', display: 'flex', flexDirection: 'column', gap: 4 }}>
                 <div>• Accuracy: <strong>94.07%</strong> | ROC-AUC: <strong>0.834</strong></div>
-                <div>• Cấu trúc: <strong>6 RDD Partitions</strong> (local[*])</div>
-                <div>• Thực thi: <strong>DAG Stages</strong> song song qua JVM</div>
+                <div>{t('academicSparkStructNote')}</div>
+                <div>{t('academicSparkExecNote')}</div>
               </div>
             </div>
 
             {/* Card 3: Mathematical Parity */}
             <div className="glass-panel" style={{ padding: '20px', borderTop: '3px solid #38bdf8' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
-                <span style={{ fontSize: '0.78rem', color: '#38bdf8', fontWeight: 600 }}>ĐỐI CHIẾU TOÁN HỌC</span>
-                <span className="badge" style={{ background: 'rgba(56, 189, 248, 0.15)', color: '#38bdf8' }}>Chuẩn 100%</span>
+                <span style={{ fontSize: '0.78rem', color: '#38bdf8', fontWeight: 600 }}>{t('academicStatMathParity')}</span>
+                <span className="badge" style={{ background: 'rgba(56, 189, 248, 0.15)', color: '#38bdf8' }}>{t('academicStatMathBadge')}</span>
               </div>
               <h3 style={{ fontSize: '1.3rem', color: 'var(--text-primary)', marginBottom: 4 }}>
-                Toàn Vẹn Độ Chính Xác
+                {t('academicStatMathTitle')}
               </h3>
               <div style={{ display: 'flex', alignItems: 'baseline', gap: 10, margin: '8px 0' }}>
                 <span style={{ fontSize: '1.8rem', fontWeight: 800, color: '#38bdf8' }}>0.830 ⟷ 0.834</span>
                 <span style={{ fontSize: '0.82rem', color: 'var(--text-muted)' }}>ROC-AUC</span>
               </div>
               <div style={{ fontSize: '0.82rem', color: 'var(--text-secondary)', display: 'flex', flexDirection: 'column', gap: 4 }}>
-                <div>• Thuật toán phân tán <strong>không làm giảm chất lượng</strong></div>
-                <div>• Cả 2 đều vượt trội hoàn toàn so với Baseline (0.50)</div>
-                <div>• F1-Score đạt <strong>0.78 - 0.94</strong> cực kỳ ổn định</div>
+                <div>{t('academicMathFidelityNote')}</div>
+                <div>{t('academicMathBaselineNote')}</div>
+                <div>{t('academicMathF1Note')}</div>
               </div>
             </div>
 
             {/* Card 4: Big Data Overhead */}
             <div className="glass-panel" style={{ padding: '20px', borderTop: '3px solid #a855f7' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
-                <span style={{ fontSize: '0.78rem', color: '#a855f7', fontWeight: 600 }}>BẢN CHẤT BIG DATA</span>
-                <span className="badge" style={{ background: 'rgba(168, 85, 247, 0.15)', color: '#a855f7' }}>Distributed Cost</span>
+                <span style={{ fontSize: '0.78rem', color: '#a855f7', fontWeight: 600 }}>{t('academicStatOverhead')}</span>
+                <span className="badge" style={{ background: 'rgba(168, 85, 247, 0.15)', color: '#a855f7' }}>{t('academicStatOverheadBadge')}</span>
               </div>
               <h3 style={{ fontSize: '1.3rem', color: 'var(--text-primary)', marginBottom: 4 }}>
-                Distributed Overhead
+                {t('academicStatOverheadTitle')}
               </h3>
               <div style={{ display: 'flex', alignItems: 'baseline', gap: 10, margin: '8px 0' }}>
                 <span style={{ fontSize: '1.8rem', fontWeight: 800, color: '#a855f7' }}>200,000</span>
-                <span style={{ fontSize: '0.82rem', color: 'var(--text-muted)' }}>Dòng (~23.5 MB)</span>
+                <span style={{ fontSize: '0.82rem', color: 'var(--text-muted)' }}>{t('academicStatRows')}</span>
               </div>
               <div style={{ fontSize: '0.82rem', color: 'var(--text-secondary)', display: 'flex', flexDirection: 'column', gap: 4 }}>
-                <div>• Dữ liệu &lt; RAM: Single-node C++ thắng vì nhẹ</div>
-                <div>• Dữ liệu &gt; RAM (Big Data): Sklearn sập OOM</div>
-                <div>• Spark mở rộng ngang (Scale-out) trên cụm máy</div>
+                <div>{t('academicOverheadRamNote')}</div>
+                <div>{t('academicOverheadOomNote')}</div>
+                <div>{t('academicOverheadScaleNote')}</div>
               </div>
             </div>
           </div>
@@ -455,29 +515,29 @@ export default function AcademicHub() {
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
               <div>
                 <h3 style={{ fontSize: '1.15rem', color: 'var(--text-primary)', fontWeight: 700 }}>
-                  Bảng Đối Chứng Thực Nghiệm: Thư Viện Thông Thường vs Apache Spark MLlib
+                  {t('academicTableTitle')}
                 </h3>
                 <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
-                  Trích xuất trực tiếp từ kết quả chạy thực tế trên Kaggle (Tập dữ liệu 200,000 dòng cảm biến)
+                  {t('academicTableSubtitle')}
                 </p>
               </div>
-              <span className="badge badge-optimal">7 Kiến Trúc Đã Đánh Giá</span>
+              <span className="badge badge-optimal">{t('academicTableArchitecturesBadge')}</span>
             </div>
 
             <div style={{ overflowX: 'auto' }}>
               <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.83rem' }}>
                 <thead>
                   <tr style={{ background: 'var(--bg-surface)', borderBottom: '1px solid var(--border-card)', textAlign: 'left', color: 'var(--text-secondary)' }}>
-                    <th style={{ padding: '12px 14px' }}>Mô Hình Huấn Luyện</th>
-                    <th style={{ padding: '12px 14px' }}>Nền Tảng Thực Thi</th>
-                    <th style={{ padding: '12px 14px' }}>Phân Vùng (Partitions)</th>
-                    <th style={{ padding: '12px 14px' }}>Thời Gian Train</th>
-                    <th style={{ padding: '12px 14px' }}>Accuracy</th>
-                    <th style={{ padding: '12px 14px' }}>Precision</th>
-                    <th style={{ padding: '12px 14px' }}>Recall</th>
-                    <th style={{ padding: '12px 14px' }}>F1-Score</th>
-                    <th style={{ padding: '12px 14px' }}>ROC-AUC</th>
-                    <th style={{ padding: '12px 14px' }}>Đặc Tính Ứng Dụng</th>
+                    <th style={{ padding: '12px 14px' }}>{t('academicColModel')}</th>
+                    <th style={{ padding: '12px 14px' }}>{t('academicColEngine')}</th>
+                    <th style={{ padding: '12px 14px' }}>{t('academicColPartitions')}</th>
+                    <th style={{ padding: '12px 14px' }}>{t('academicColTrainTime')}</th>
+                    <th style={{ padding: '12px 14px' }}>{t('academicColAccuracy')}</th>
+                    <th style={{ padding: '12px 14px' }}>{t('academicColPrecision')}</th>
+                    <th style={{ padding: '12px 14px' }}>{t('academicColRecall')}</th>
+                    <th style={{ padding: '12px 14px' }}>{t('academicColF1')}</th>
+                    <th style={{ padding: '12px 14px' }}>{t('academicColRocAuc')}</th>
+                    <th style={{ padding: '12px 14px' }}>{t('academicColRole')}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -545,13 +605,13 @@ export default function AcademicHub() {
               <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10 }}>
                 <Cpu size={20} color="#f59e0b" />
                 <h4 style={{ fontSize: '1.05rem', color: 'var(--text-primary)', fontWeight: 700 }}>
-                  Giải Mã Chi Phí Phân Tán (Distributed Overhead)
+                  {t('academicAnalysis1Title')}
                 </h4>
               </div>
               <p style={{ fontSize: '0.82rem', color: 'var(--text-secondary)', lineHeight: 1.7 }}>
-                • <strong>Tại sao LightGBM chỉ mất 1.25s còn Spark mất 21.4s?</strong><br />
-                Tập dữ liệu 200,000 dòng có dung lượng ~23.5 MB, hoàn toàn nằm gọn trong RAM. Ở quy mô này, thư viện C++ (LightGBM) không tốn bất kỳ chi phí mạng hay phân mảnh bộ nhớ nào.<br />
-                • Trong khi đó, Apache Spark MLlib phải: <strong>1)</strong> Khởi động máy ảo Java (JVM); <strong>2)</strong> Tuần tự hóa dữ liệu qua Py4J Gateway; <strong>3)</strong> Băm dữ liệu vào 6 Partitions và lập lịch đồ thị DAG. Chi phí quản lý phân tán này lớn hơn thời gian tính toán thực tế.
+                • <strong>{t('academicAnalysis1P1')}</strong><br />
+                {t('academicAnalysis1P2')}<br />
+                • {t('academicAnalysis1P3')}
               </p>
             </div>
 
@@ -560,12 +620,12 @@ export default function AcademicHub() {
               <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10 }}>
                 <Server size={20} color="var(--color-optimal)" />
                 <h4 style={{ fontSize: '1.05rem', color: 'var(--text-primary)', fontWeight: 700 }}>
-                  Khi Nào Apache Spark MLlib Bất Khả Chiến Bại?
+                  {t('academicAnalysis2Title')}
                 </h4>
               </div>
               <p style={{ fontSize: '0.82rem', color: 'var(--text-secondary)', lineHeight: 1.7 }}>
-                • <strong>Vấn đề Out-Of-Memory (OOM) của máy đơn:</strong> Khi nông trường tích lũy dữ liệu nhiều năm lên đến <strong>50GB hoặc 500GB</strong>, việc nạp vào Pandas hoặc Scikit-Learn trên laptop sẽ lập tức gây sập phần mềm vì tràn RAM.<br />
-                • <strong>Khả năng mở rộng ngang (Scale-out):</strong> Apache Spark MLlib không bị giới hạn bởi RAM của 1 máy. Khi dữ liệu tăng gấp 10 lần, ta chỉ cần thêm Worker Nodes vào cụm Cluster để dữ liệu tự động chia đều qua các Partitions mà không cần sửa một dòng code nào.
+                • <strong>{t('academicAnalysis2P1')}</strong> {t('academicAnalysis2P2')}<br />
+                • <strong>{t('academicAnalysis2P3')}</strong> {t('academicAnalysis2P4')}
               </p>
             </div>
 
@@ -574,12 +634,12 @@ export default function AcademicHub() {
               <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10 }}>
                 <Layers size={20} color="#38bdf8" />
                 <h4 style={{ fontSize: '1.05rem', color: 'var(--text-primary)', fontWeight: 700 }}>
-                  Kiến Trúc Chuẩn Kết Hợp: Lambda Architecture
+                  {t('academicAnalysis3Title')}
                 </h4>
               </div>
               <p style={{ fontSize: '0.82rem', color: 'var(--text-secondary)', lineHeight: 1.7 }}>
-                • <strong>Tầng Xử lý Lô (Batch Layer - Spark MLlib):</strong> Chạy định kỳ vào ban đêm trên cụm Hadoop / Databricks để phân tích dữ liệu lớn lịch sử, tái huấn luyện mô hình và cập nhật trọng số.<br />
-                • <strong>Tầng Phục vụ Thời gian thực (Speed Layer - LightGBM Serving):</strong> Nhúng mô hình tối ưu vào Web Server FastAPI để phục vụ người dùng gạt thanh trượt cảm biến phản hồi dưới <strong>20ms</strong> trên Web và Mobile.
+                • <strong>{t('academicAnalysis3P1')}</strong> {t('academicAnalysis3P2')}<br />
+                • <strong>{t('academicAnalysis3P3')}</strong> {t('academicAnalysis3P4')}
               </p>
             </div>
           </div>
@@ -594,31 +654,31 @@ export default function AcademicHub() {
             {/* Track 1 Card */}
             <div className="glass-panel" style={{ padding: '22px', borderLeft: '4px solid var(--color-warning)' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
-                <span className="badge badge-warning">Track 1: Dữ Liệu Gốc Của Thầy</span>
-                <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>200,000 Dòng</span>
+                <span className="badge badge-warning">{t('academicTrack1Badge')}</span>
+                <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>{t('academicRecordsCount')}</span>
               </div>
               <h4 style={{ fontSize: '1.05rem', color: 'var(--text-primary)', marginBottom: 8 }}>
-                Nghịch Lý Độ Chính Xác 97% (The 97% Accuracy Paradox)
+                {t('academicTrack1Title')}
               </h4>
               <p style={{ fontSize: '0.82rem', color: 'var(--text-secondary)', lineHeight: 1.6 }}>
-                • Mô hình Dummy đạt <strong>96.91% Accuracy</strong> chỉ bằng cách đoán tất cả cây đều khỏe mạnh. Nhưng <strong>Recall và F1-Score đều bằng 0</strong>.<br />
-                • Kiểm định thống kê chứng minh nhãn <code>plant_health</code> phân bố ngẫu nhiên độc lập với 9 biến môi trường (Zero-Signal). Mọi thuật toán AI đều dừng ở sàn ngẫu nhiên <strong>ROC-AUC = 0.50</strong>.
+                • {t('academicTrack1P1')}<br />
+                • {t('academicTrack1P2')}
               </p>
             </div>
 
             {/* Track 2 Card */}
             <div className="glass-panel" style={{ padding: '22px', borderLeft: '4px solid var(--color-optimal)' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
-                <span className="badge badge-optimal">Track 2: Nhãn Sinh Thái Chuẩn (SOTA)</span>
-                <span style={{ fontSize: '0.78rem', color: 'var(--color-optimal)', fontWeight: 700 }}>Đưa Vào Ứng Dụng Web</span>
+                <span className="badge badge-optimal">{t('academicTrack2Badge')}</span>
+                <span style={{ fontSize: '0.78rem', color: 'var(--color-optimal)', fontWeight: 700 }}>{t('academicTrack2DeployBadge')}</span>
               </div>
               <h4 style={{ fontSize: '1.05rem', color: 'var(--text-primary)', marginBottom: 8 }}>
-                Mô Hình LightGBM Tối Ưu Ngưỡng Quyết Định T* = 0.34
+                {t('academicTrack2Title')}
               </h4>
               <p style={{ fontSize: '0.82rem', color: 'var(--text-secondary)', lineHeight: 1.6 }}>
-                • Bổ sung 4 đặc trưng sinh thái nông học (Axit hóa, Sốc nhiệt/hạn, Thủy văn, Ô nhiễm).<br />
-                • Mô hình hội tụ hoàn hảo sau 150 vòng lặp, đạt <strong>ROC-AUC 0.83</strong>, <strong>Precision 95.05%</strong> và <strong>F1-Score 0.778</strong>.<br />
-                • Đây là mô hình lõi đang vận hành trên Web Command Center & Mobile PWA.
+                • {t('academicTrack2P1')}<br />
+                • {t('academicTrack2P2')}<br />
+                • {t('academicTrack2P3')}
               </p>
             </div>
           </div>
@@ -631,12 +691,12 @@ export default function AcademicHub() {
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
               <h3 style={{ fontSize: '1.25rem', color: 'var(--text-primary)', fontWeight: 700 }}>
-                Thư Viện Đối Chứng Biểu Đồ Khoa Học (300 DPI)
+                {t('academicGalleryTitle')}
               </h3>
-              <span className="badge badge-optimal">Đồng Bộ 6x6 Chuẩn Đối Ứng</span>
+              <span className="badge badge-optimal">{t('academicGalleryBadge')}</span>
             </div>
             <p style={{ fontSize: '0.82rem', color: 'var(--text-secondary)' }}>
-              Đặt cạnh nhau để so sánh trực diện từng tiêu chí giữa Thư viện thông thường (LightGBM) và Apache Spark MLlib
+              {t('academicGallerySubtitle')}
             </p>
           </div>
 
@@ -659,7 +719,7 @@ export default function AcademicHub() {
               }}
             >
               <Columns size={15} />
-              <span>👥 So Sánh Song Song 2 Bên (Khuyên Dùng)</span>
+              <span>{t('viewSideBySide')}</span>
             </button>
 
             <button
@@ -678,7 +738,7 @@ export default function AcademicHub() {
               }}
             >
               <Flame size={15} />
-              <span>🔥 6 Biểu Đồ Spark MLlib</span>
+              <span>{t('viewSparkOnly')}</span>
             </button>
 
             <button
@@ -697,7 +757,7 @@ export default function AcademicHub() {
               }}
             >
               <Zap size={15} />
-              <span>⚡ 6 Biểu Đồ Thư Viện Thường</span>
+              <span>{t('viewTradOnly')}</span>
             </button>
           </div>
         </div>
@@ -735,7 +795,7 @@ export default function AcademicHub() {
                         {pair.subtitle}
                       </p>
                     </div>
-                    <span className="badge badge-optimal">Đối Chiếu Song Song Trực Diện</span>
+                    <span className="badge badge-optimal">{t('academicSideBySideBadge')}</span>
                   </div>
 
                   {/* 2 Images Placed Side-by-Side in Same Frame */}
@@ -761,7 +821,7 @@ export default function AcademicHub() {
                         <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                           <Zap size={15} color="var(--color-optimal)" />
                           <span style={{ fontSize: '0.82rem', fontWeight: 700, color: 'var(--color-optimal)' }}>
-                            THƯ VIỆN THƯỜNG (LIGHTGBM)
+                            {t('academicTradSubhead')}
                           </span>
                         </div>
                         <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>Single-Node C++</span>
@@ -799,7 +859,7 @@ export default function AcademicHub() {
                           fontSize: '0.72rem'
                         }}>
                           <Maximize2 size={12} />
-                          <span>Phóng to</span>
+                          <span>{t('academicZoom')}</span>
                         </div>
                       </div>
 
@@ -817,7 +877,7 @@ export default function AcademicHub() {
                             style={{ padding: '5px 10px', fontSize: '0.74rem', display: 'flex', alignItems: 'center', gap: 5 }}
                           >
                             <Download size={13} />
-                            <span>Tải ảnh PNG</span>
+                            <span>{t('academicDownloadPng')}</span>
                           </a>
                         </div>
                       </div>
@@ -844,7 +904,7 @@ export default function AcademicHub() {
                         <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
                           <Flame size={15} color="#f59e0b" />
                           <span style={{ fontSize: '0.82rem', fontWeight: 700, color: '#f59e0b' }}>
-                            APACHE SPARK MLLIB
+                            {t('academicSparkSubhead')}
                           </span>
                         </div>
                         <span style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>6 RDD Partitions</span>
@@ -882,7 +942,7 @@ export default function AcademicHub() {
                           fontSize: '0.72rem'
                         }}>
                           <Maximize2 size={12} />
-                          <span>Phóng to</span>
+                          <span>{t('academicZoom')}</span>
                         </div>
                       </div>
 
@@ -900,7 +960,7 @@ export default function AcademicHub() {
                             style={{ padding: '5px 10px', fontSize: '0.74rem', display: 'flex', alignItems: 'center', gap: 5 }}
                           >
                             <Download size={13} />
-                            <span>Tải ảnh PNG</span>
+                            <span>{t('academicDownloadPng')}</span>
                           </a>
                         </div>
                       </div>
@@ -919,7 +979,7 @@ export default function AcademicHub() {
                   }}>
                     <Info size={17} color="#10b981" style={{ flexShrink: 0, marginTop: 2 }} />
                     <div style={{ fontSize: '0.82rem', lineHeight: 1.6 }}>
-                      <strong style={{ color: 'var(--text-primary)' }}>Nhận xét đối chứng học thuật: </strong>
+                      <strong style={{ color: 'var(--text-primary)' }}>{t('academicInsight')} </strong>
                       <span style={{ color: 'var(--text-secondary)' }}>{pair.insight}</span>
                     </div>
                   </div>
@@ -971,7 +1031,7 @@ export default function AcademicHub() {
                       }}
                       onError={(e) => {
                         e.target.style.display = 'none';
-                        e.target.parentElement.innerHTML = '<div style="padding: 20px; color: var(--text-muted); font-size: 0.8rem; text-align: center;">📊 Biểu đồ đang được kết xuất...</div>';
+                        e.target.parentElement.innerHTML = `<div style="padding: 20px; color: var(--text-muted); font-size: 0.8rem; text-align: center;">${t('academicRenderingChart')}</div>`;
                       }}
                     />
                     <div style={{
@@ -988,7 +1048,7 @@ export default function AcademicHub() {
                       fontSize: '0.72rem'
                     }}>
                       <Maximize2 size={13} />
-                      <span>Phóng to</span>
+                      <span>{t('academicZoom')}</span>
                     </div>
                   </div>
 
@@ -1014,7 +1074,7 @@ export default function AcademicHub() {
                         style={{ padding: '6px 12px', fontSize: '0.75rem', display: 'flex', alignItems: 'center', gap: 6 }}
                       >
                         <Download size={13} />
-                        <span>Tải ảnh PNG</span>
+                        <span>{t('academicDownloadPng')}</span>
                       </a>
                     </div>
                   </div>
@@ -1078,7 +1138,7 @@ export default function AcademicHub() {
                   style={{ padding: '8px 14px', fontSize: '0.8rem', display: 'flex', alignItems: 'center', gap: 6 }}
                 >
                   <Download size={15} />
-                  <span>Tải ảnh 300 DPI</span>
+                  <span>{t('academicZoomDownload300')}</span>
                 </a>
                 <button 
                   onClick={() => setZoomedImage(null)}
