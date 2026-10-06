@@ -1,18 +1,26 @@
-import React from 'react';
-import { AlertTriangle, CheckCircle2, Flame, Zap } from 'lucide-react';
+import React, { useState } from 'react';
+import { AlertTriangle, CheckCircle2, Flame, Zap, Info, Cpu } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
 
 export default function RiskGauge({ 
   probability = 0.5, 
   riskLevel = 'Warning', 
   latency = 1.25, 
-  isStress = true 
+  isStress = true,
+  modelSource = 'lightgbm',
+  onModelSourceChange,
+  activeThreshold = 0.34
 }) {
   const { t } = useLanguage();
+  const [showDetailModal, setShowDetailModal] = useState(false);
 
   // Góc quay của kim từ -90 độ (0%) đến +90 độ (100%)
   const clampedProb = Math.max(0, Math.min(1, probability));
   const angle = -90 + clampedProb * 180;
+
+  // Tính góc xoay của vạch ngưỡng T*
+  const currentThreshold = activeThreshold || (modelSource === 'spark' ? 0.50 : 0.34);
+  const thresholdAngle = -90 + currentThreshold * 180;
 
   const getStatusConfig = () => {
     switch (riskLevel) {
@@ -23,7 +31,7 @@ export default function RiskGauge({
           glow: 'var(--color-optimal-glow)',
           badgeClass: 'badge-optimal',
           icon: CheckCircle2,
-          desc: 'Tất cả các chỉ số đều trong vùng sinh thái an toàn'
+          desc: t('statusOptimalDesc')
         };
       case 'Warning':
         return {
@@ -32,7 +40,7 @@ export default function RiskGauge({
           glow: 'var(--color-warning-glow)',
           badgeClass: 'badge-warning',
           icon: AlertTriangle,
-          desc: 'Hệ sinh thái đang dần xấu đi, cần theo dõi sát'
+          desc: t('statusWarningDesc')
         };
       case 'Critical':
       default:
@@ -42,7 +50,7 @@ export default function RiskGauge({
           glow: 'var(--color-critical-glow)',
           badgeClass: 'badge-critical',
           icon: Flame,
-          desc: 'Ngưỡng nguy cấp! Rễ cây hoặc tế bào đang tổn thương'
+          desc: t('statusCriticalDesc')
         };
     }
   };
@@ -54,7 +62,7 @@ export default function RiskGauge({
     <div 
       className="glass-panel" 
       style={{
-        padding: '24px',
+        padding: '22px',
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
@@ -79,10 +87,64 @@ export default function RiskGauge({
         zIndex: 0
       }} />
 
-      {/* Header */}
-      <div style={{ zIndex: 1, textAlign: 'center', marginBottom: 12 }}>
-        <div style={{ fontSize: '0.78rem', textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--text-secondary)', fontWeight: 700 }}>
+      {/* Header & Dual Model Weight Switcher */}
+      <div style={{ zIndex: 1, textAlign: 'center', width: '100%', marginBottom: 12 }}>
+        <div style={{ fontSize: '0.76rem', textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--text-secondary)', fontWeight: 700, marginBottom: 8 }}>
           {t('riskGaugeTitle')}
+        </div>
+
+        {/* Nút chuyển đổi nguồn trọng số mô hình */}
+        <div style={{
+          display: 'inline-flex',
+          background: 'var(--bg-surface)',
+          padding: 3,
+          borderRadius: 10,
+          border: '1px solid var(--border-card)',
+          gap: 4
+        }}>
+          <button
+            type="button"
+            onClick={() => onModelSourceChange?.('lightgbm')}
+            style={{
+              padding: '4px 10px',
+              border: 'none',
+              borderRadius: 7,
+              fontSize: '0.72rem',
+              fontWeight: 700,
+              cursor: 'pointer',
+              background: modelSource === 'lightgbm' ? 'var(--color-optimal)' : 'transparent',
+              color: modelSource === 'lightgbm' ? '#ffffff' : 'var(--text-secondary)',
+              transition: 'all 0.2s',
+              display: 'flex',
+              alignItems: 'center',
+              gap: 4
+            }}
+          >
+            <span>⚡ LightGBM</span>
+            <span style={{ fontSize: '0.64rem', opacity: 0.85 }}>(T*=0.34)</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => onModelSourceChange?.('spark')}
+            style={{
+              padding: '4px 10px',
+              border: 'none',
+              borderRadius: 7,
+              fontSize: '0.72rem',
+              fontWeight: 700,
+              cursor: 'pointer',
+              background: modelSource === 'spark' ? '#f59e0b' : 'transparent',
+              color: modelSource === 'spark' ? '#0f172a' : 'var(--text-secondary)',
+              transition: 'all 0.2s',
+              display: 'flex',
+              alignItems: 'center',
+              gap: 4
+            }}
+          >
+            <span>🔥 Apache Spark</span>
+            <span style={{ fontSize: '0.64rem', opacity: 0.85 }}>(T*=0.50)</span>
+          </button>
         </div>
       </div>
 
@@ -117,8 +179,7 @@ export default function RiskGauge({
             strokeDashoffset="0"
           />
 
-          {/* Vạch đánh dấu ngưỡng tối ưu T* = 0.34 */}
-          {/* Góc tại 0.34 là: -90 + 0.34 * 180 = -28.8 độ */}
+          {/* Vạch đánh dấu ngưỡng cắt T* linh hoạt theo mô hình */}
           <line
             x1="100"
             y1="22"
@@ -127,7 +188,7 @@ export default function RiskGauge({
             stroke="#ffffff"
             strokeWidth="2.5"
             strokeDasharray="2,2"
-            transform="rotate(-28.8 100 100)"
+            transform={`rotate(${thresholdAngle} 100 100)`}
           />
           <text
             x="100"
@@ -137,12 +198,12 @@ export default function RiskGauge({
             fontFamily="var(--font-mono)"
             fontWeight="bold"
             textAnchor="middle"
-            transform="rotate(-28.8 100 100)"
+            transform={`rotate(${thresholdAngle} 100 100)`}
           >
-            T*=0.34
+            T*={currentThreshold.toFixed(2)}
           </text>
 
-          {/* Kim chỉ thị (Needle) */}
+          {/* Kim chỉ thị (Needle) quay tự do không bị chặn */}
           <g 
             transform={`rotate(${angle} 100 100)`} 
             style={{ transition: 'transform 0.45s cubic-bezier(0.34, 1.56, 0.64, 1)' }}
@@ -180,7 +241,7 @@ export default function RiskGauge({
       {/* Status Alert Banner */}
       <div style={{
         zIndex: 1,
-        marginTop: 18,
+        marginTop: 16,
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
@@ -190,12 +251,12 @@ export default function RiskGauge({
           <StatusIcon size={16} />
           <span>{status.title}</span>
         </div>
-        <div style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', textAlign: 'center', maxWidth: 260 }}>
+        <div style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', textAlign: 'center', maxWidth: 280 }}>
           {status.desc}
         </div>
       </div>
 
-      {/* Latency Footer */}
+      {/* Latency Footer & Explanation */}
       <div style={{
         zIndex: 1,
         marginTop: 14,
@@ -209,14 +270,52 @@ export default function RiskGauge({
         color: 'var(--text-muted)',
         fontFamily: 'var(--font-mono)'
       }}>
-        <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
           <Zap size={12} color="var(--color-optimal)" />
-          {t('execTimeLabel')}:
-        </span>
-        <span style={{ color: 'var(--color-optimal)', fontWeight: 700 }}>
-          {latency} ms
-        </span>
+          <span>{t('execTimeLabel')}:</span>
+          <span style={{ color: 'var(--color-optimal)', fontWeight: 700 }}>
+            {latency} ms
+          </span>
+        </div>
+        <button
+          type="button"
+          onClick={() => setShowDetailModal(!showDetailModal)}
+          style={{
+            background: 'none',
+            border: 'none',
+            color: 'var(--text-muted)',
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            gap: 3,
+            fontSize: '0.68rem'
+          }}
+          title={t('gaugeDetailsBtn')}
+        >
+          <Info size={12} />
+          <span>{t('gaugeDetailsBtn')}</span>
+        </button>
       </div>
+
+      {/* Accordion Note giải thích nguồn gốc Latency & Trọng số */}
+      {showDetailModal && (
+        <div style={{
+          marginTop: 10,
+          padding: '10px 12px',
+          background: 'var(--bg-surface)',
+          borderRadius: 8,
+          border: '1px solid var(--border-card)',
+          fontSize: '0.72rem',
+          color: 'var(--text-secondary)',
+          lineHeight: 1.5,
+          width: '100%'
+        }}>
+          <div>⏱️ <b>{t('execTimeLabel')} ({latency} ms):</b> {t('gaugeLatencyExpl')}</div>
+          <div style={{ marginTop: 4 }}>📊 <b>{t('gaugeModelExplTitle')}</b></div>
+          <div>• <b>LightGBM (T*=0.34):</b> {t('gaugeModelExplLgb')}</div>
+          <div>• <b>Apache Spark GBT (T*=0.50):</b> {t('gaugeModelExplSpark')}</div>
+        </div>
+      )}
     </div>
   );
 }

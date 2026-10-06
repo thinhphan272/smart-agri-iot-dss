@@ -75,7 +75,7 @@ export default function SensorSliders({ sensorData, onChange, disabled = false }
       min: 1,
       max: 14,
       step: 0.5,
-      unit: 'h/ngày',
+      unit: t('unitHoursPerDay'),
       color: '#eab308',
       warningMin: 4.5,
       warningMax: 10,
@@ -145,15 +145,15 @@ export default function SensorSliders({ sensorData, onChange, disabled = false }
       }}>
         <div>
           <h3 style={{ fontSize: '1.05rem', color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: 8 }}>
-            <span>9 Kênh Cảm Biến Sinh Thái Thực Địa</span>
+            <span>{t('slidersTitle')}</span>
             {isReadOnly && (
               <span className="badge badge-warning" style={{ fontSize: '0.68rem' }}>
-                <Lock size={10} /> Chỉ Xem (Quyền Nông Dân)
+                <Lock size={10} /> {t('slidersReadOnly')}
               </span>
             )}
           </h3>
           <p style={{ fontSize: '0.76rem', color: 'var(--text-secondary)', marginTop: 2 }}>
-            Kéo trượt để mô phỏng sự biến thiên của vi khí hậu hoặc chọn kịch bản mẫu.
+            {t('slidersDesc')}
           </p>
         </div>
 
@@ -165,28 +165,28 @@ export default function SensorSliders({ sensorData, onChange, disabled = false }
               className="btn btn-secondary"
               style={{ fontSize: '0.74rem', padding: '5px 10px', borderRadius: '8px' }}
             >
-              🌱 Tối Ưu
+              {t('presetOptimal')}
             </button>
             <button
               onClick={() => applyPreset({ soil_ph: 4.2, soil_moisture: 38, air_temp_C: 31, pollution_index: 30 })}
               className="btn btn-secondary"
               style={{ fontSize: '0.74rem', padding: '5px 10px', borderRadius: '8px' }}
             >
-              🍋 Đất Chua
+              {t('presetAcidic')}
             </button>
             <button
               onClick={() => applyPreset({ soil_ph: 6.8, soil_moisture: 14, air_temp_C: 39, pollution_index: 68 })}
               className="btn btn-secondary"
               style={{ fontSize: '0.74rem', padding: '5px 10px', borderRadius: '8px', color: '#fb7185' }}
             >
-              🔥 Hạn & Sốc Nhiệt
+              {t('presetHeatwave')}
             </button>
             <button
               onClick={() => applyPreset({ soil_ph: 5.8, soil_moisture: 92, air_temp_C: 27, pollution_index: 75 })}
               className="btn btn-secondary"
               style={{ fontSize: '0.74rem', padding: '5px 10px', borderRadius: '8px', color: '#38bdf8' }}
             >
-              🌊 Ngập Úng
+              {t('presetFlood')}
             </button>
           </div>
         )}
@@ -263,7 +263,7 @@ export default function SensorSliders({ sensorData, onChange, disabled = false }
               <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.68rem', color: 'var(--text-muted)', marginTop: 4 }}>
                 <span>{cfg.min}</span>
                 <span style={{ color: isWarning ? '#fb7185' : 'var(--text-muted)' }}>
-                  {isWarning ? '⚠️ Ngoài biên an toàn' : 'Chuẩn sinh học'}
+                  {isWarning ? t('outOfBoundsWarning') : t('bioOptimalSafe')}
                 </span>
                 <span>{cfg.max}</span>
               </div>
@@ -292,10 +292,10 @@ export default function SensorSliders({ sensorData, onChange, disabled = false }
             onChange={(e) => onChange({ ...sensorData, season: e.target.value })}
             style={{ padding: '8px 12px', fontSize: '0.88rem' }}
           >
-            <option value="Spring">🌸 Mùa Xuân (Spring)</option>
-            <option value="Summer">☀️ Mùa Hè (Summer)</option>
-            <option value="Autumn">🍂 Mùa Thu (Autumn)</option>
-            <option value="Winter">❄️ Mùa Đông (Winter)</option>
+            <option value="Spring">{t('seasonSpring')}</option>
+            <option value="Summer">{t('seasonSummer')}</option>
+            <option value="Autumn">{t('seasonAutumn')}</option>
+            <option value="Winter">{t('seasonWinter')}</option>
           </select>
         </div>
 
@@ -310,10 +310,10 @@ export default function SensorSliders({ sensorData, onChange, disabled = false }
             onChange={(e) => onChange({ ...sensorData, plant_species: e.target.value })}
             style={{ padding: '8px 12px', fontSize: '0.88rem' }}
           >
-            <option value="Lúa nước">🌾 Lúa nước (Wetland C)</option>
-            <option value="Cây ăn trái">🍎 Cây ăn trái (Tree Y)</option>
-            <option value="Rau màu thổ nhưỡng">🥦 Rau màu thổ nhưỡng (Shrub X)</option>
-            <option value="Đồng cỏ chăn nuôi">🌿 Đồng cỏ chăn nuôi (Grassland B)</option>
+            <option value="Lúa nước">{t('cropRice')}</option>
+            <option value="Cây ăn trái">{t('cropFruit')}</option>
+            <option value="Rau màu thổ nhưỡng">{t('cropVegetables')}</option>
+            <option value="Đồng cỏ chăn nuôi">{t('cropGrass')}</option>
           </select>
         </div>
       </div>

@@ -79,6 +79,8 @@ def predict_plant_health(
         root_causes=ai_result["root_causes"],
         remediation=ai_result["remediation"],
         execution_time_ms=ai_result["execution_time_ms"],
+        model_source=ai_result.get("model_source", request.model_source or "lightgbm"),
+        active_threshold=ai_result.get("active_threshold", 0.34),
         diagnostic_id=diagnostic_record.id,
         timestamp=diagnostic_record.timestamp
     )
