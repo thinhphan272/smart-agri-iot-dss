@@ -29,6 +29,8 @@ if DATABASE_URL.startswith("postgresql://"):
 connect_args = {}
 if "sqlite" in DATABASE_URL:
     connect_args = {"check_same_thread": False}
+elif "postgresql" in DATABASE_URL:
+    connect_args = {"connect_timeout": 3}
 
 # Kiểm tra kết nối; nếu PostgreSQL không hoạt động (ví dụ máy bạn bè chưa cài PostgreSQL)
 # thì tự động chuyển sang SQLite nội bộ để chạy được ngay 100%
