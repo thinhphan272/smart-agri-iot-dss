@@ -7,11 +7,13 @@ from backend.app.schemas import (
     UserRegisterRequest, 
     UserLoginRequest, 
     QuickDemoLoginRequest, 
+    GoogleLoginRequest,
     TokenResponse, 
     UserResponse
 )
 from backend.app.services.auth_service import hash_password, verify_password, create_access_token
 from backend.app.dependencies import get_current_user
+import uuid
 router = APIRouter()
 
 @router.post("/register", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
@@ -94,6 +96,41 @@ def quick_demo_login(req: QuickDemoLoginRequest, db: Session = Depends(get_db)):
         user_id=user.id,
         full_name=user.full_name
     )
+
+@router.post("/google-login", response_model=TokenResponse)
+def google_login(req: GoogleLoginRequest, db: Session = Depends(get_db)):
+    """
+    Đăng nhập bằng tài khoản Google / Gmail:
+    Nếu email đã tồn tại -> Đăng nhập ngay.
+    Nếu chưa có -> Tự động khởi tạo tài khoản mới với vai trò được chọn
+    """
+    email_clean = str(req.email).strip().lower()
+    user = db.query(User).filter(User.email == email_clean).first()
+    
+    if not user:
+        display_name = req.full_name or email_clean.split("@")[0].replace(".", " ").title()
+        user = User(
+            email=email_clean,
+            hashed_password=hash_password(uuid.uuid4().hex),
+            full_name=display_name,
+            role=req.role or "engineer",
+            auth_provider="google"
+        )
+        db.add(user)
+        db.commit()
+        db.refresh(user)
+
+    access_token = create_access_token(
+        data={"sub": user.email, "role": user.role, "user_id": user.id}
+    )
+    return TokenResponse(
+        access_token=access_token,
+        token_type="bearer",
+        role=user.role,
+        user_id=user.id,
+        full_name=user.full_name
+    )
+
 
 @router.get("/me", response_model=UserResponse)
 def get_current_user_profile(current_user: User = Depends(get_current_user)):

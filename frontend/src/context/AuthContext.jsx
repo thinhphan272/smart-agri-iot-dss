@@ -67,6 +67,16 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  const googleLogin = async (email, fullName, role) => {
+    try {
+      const res = await authAPI.googleLogin(email, fullName, role);
+      loginWithToken(res.data);
+      return { success: true, user: res.data };
+    } catch (err) {
+      return { success: false, error: err.response?.data?.detail || 'Lỗi đăng nhập Google' };
+    }
+  };
+
   const logout = () => {
     localStorage.removeItem('agri_jwt_token');
     setToken(null);
@@ -83,6 +93,7 @@ export const AuthProvider = ({ children }) => {
         loading,
         login,
         register,
+        googleLogin,
         quickDemoLogin,
         logout,
       }}

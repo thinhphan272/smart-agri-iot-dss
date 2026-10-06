@@ -10,18 +10,21 @@ import {
   Sun, 
   ShieldCheck, 
   LogOut, 
+  LogIn,
   User as UserIcon, 
   Sparkles,
   ChevronDown
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useLanguage } from '../context/LanguageContext';
+import AuthModal from './AuthModal';
 
 export default function Navbar({ activeTab, setActiveTab }) {
   const { user, role, quickDemoLogin, logout, isAuthenticated } = useAuth();
   const { lang, toggleLanguage, t } = useLanguage();
   const [isDark, setIsDark] = useState(true);
   const [showDemoMenu, setShowDemoMenu] = useState(false);
+  const [showAuthModal, setShowAuthModal] = useState(false);
 
   const toggleTheme = () => {
     const nextTheme = isDark ? 'light' : 'dark';
@@ -163,32 +166,53 @@ export default function Navbar({ activeTab, setActiveTab }) {
                 }}
               >
                 <div style={{ padding: '6px 10px', fontSize: '0.72rem', color: 'var(--text-muted)', fontWeight: 700, textTransform: 'uppercase' }}>
-                  Demo 1-Chạm Theo Vai Trò
+                  {t('demoMenuTitle')}
                 </div>
                 <button
                   onClick={() => { quickDemoLogin('admin'); setShowDemoMenu(false); }}
                   className="btn btn-secondary"
                   style={{ justifyContent: 'flex-start', fontSize: '0.82rem', padding: '8px 10px' }}
                 >
-                  👑 <span>Hội Đồng / Admin</span>
+                  🛡️ <span>{t('roleAdmin')}</span>
                 </button>
                 <button
                   onClick={() => { quickDemoLogin('engineer'); setShowDemoMenu(false); }}
                   className="btn btn-secondary"
                   style={{ justifyContent: 'flex-start', fontSize: '0.82rem', padding: '8px 10px' }}
                 >
-                  ⚡ <span>Kỹ Sư Nông Học</span>
+                  ⚡ <span>{t('roleEngineer')}</span>
                 </button>
                 <button
                   onClick={() => { quickDemoLogin('farmer'); setShowDemoMenu(false); }}
                   className="btn btn-secondary"
                   style={{ justifyContent: 'flex-start', fontSize: '0.82rem', padding: '8px 10px' }}
                 >
-                  🌾 <span>Nông Dân / Khách</span>
+                  🌾 <span>{t('roleFarmer')}</span>
+                </button>
+                <div style={{ height: 1, background: 'var(--border-card)', margin: '4px 0' }} />
+                <button
+                  onClick={() => { setShowAuthModal(true); setShowDemoMenu(false); }}
+                  className="btn btn-primary"
+                  style={{ justifyContent: 'center', fontSize: '0.8rem', padding: '7px 10px' }}
+                >
+                  <LogIn size={13} />
+                  <span>{t('authSignInRegister')}</span>
                 </button>
               </div>
             )}
           </div>
+
+          {/* Login Trigger Button (khi chưa đăng nhập) */}
+          {!isAuthenticated && (
+            <button
+              onClick={() => setShowAuthModal(true)}
+              className="btn btn-primary"
+              style={{ fontSize: '0.82rem', padding: '7px 12px', borderRadius: '10px' }}
+            >
+              <LogIn size={14} />
+              <span>{t('authSignIn')}</span>
+            </button>
+          )}
 
           {/* User Profile / Status */}
           {isAuthenticated && (
@@ -212,7 +236,7 @@ export default function Navbar({ activeTab, setActiveTab }) {
             onClick={toggleLanguage}
             className="btn btn-secondary"
             style={{ padding: '8px 10px', fontSize: '0.8rem', borderRadius: '10px' }}
-            title="Đổi Ngôn Ngữ / Switch Language"
+            title={t('switchLangTitle')}
           >
             <Globe size={14} />
             <span style={{ fontWeight: 700 }}>{lang.toUpperCase()}</span>
@@ -223,12 +247,15 @@ export default function Navbar({ activeTab, setActiveTab }) {
             onClick={toggleTheme}
             className="btn btn-secondary"
             style={{ padding: '8px 10px', borderRadius: '10px' }}
-            title="Sáng / Tối Theme"
+            title={t('switchThemeTitle')}
           >
             {isDark ? <Sun size={15} color="#fbbf24" /> : <Moon size={15} color="#60a5fa" />}
           </button>
         </div>
       </div>
+
+      {/* Auth Modal Popup */}
+      <AuthModal isOpen={showAuthModal} onClose={() => setShowAuthModal(false)} />
     </header>
   );
 }

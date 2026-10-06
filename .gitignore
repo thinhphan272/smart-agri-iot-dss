@@ -30,3 +30,4 @@ yarn-error.log*
 backend/uploads/
 backend/temp/
 .pytest_cache/
+scratch/

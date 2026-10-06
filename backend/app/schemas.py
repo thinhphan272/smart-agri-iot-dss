@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Optional, List, Any
+from typing import Optional, List, Any, Dict
 from pydantic import BaseModel, Field, ConfigDict
 
 
@@ -71,14 +71,15 @@ class SensorPredictRequest(BaseModel):
     soil_ph: float = Field(..., ge=0.0, le=14.0, description="Độ pH đất (0 - 14)", example=5.8)
     soil_moisture: float = Field(..., ge=0.0, le=100.0, description="Độ ẩm đất (%)", example=45.2)
     air_temp_C: float = Field(..., ge=-20.0, le=60.0, description="Nhiệt độ không khí (°C)", example=32.5)
-    sunlight_hours: float = Field(..., ge=0.0, le=24.0, description="Số giờ nắng trong ngày", example=7.5)
-    pollution_index: float = Field(..., ge=0.0, le=100.0, description="Chỉ số ô nhiễm", example=25.0)
-    vegetation_density: float = Field(..., ge=0.0, le=1.0, description="Mật độ thảm thực vật (0.0 - 1.0)", example=0.65)
+    sunlight_hours: float = Field(default=7.0, ge=0.0, le=24.0, description="Số giờ nắng trong ngày", example=7.5)
+    pollution_index: float = Field(default=20.0, ge=0.0, le=100.0, description="Chỉ số ô nhiễm", example=25.0)
+    vegetation_density: float = Field(default=0.6, ge=0.0, le=1.0, description="Mật độ thảm thực vật (0.0 - 1.0)", example=0.65)
     elevation_m: float = Field(default=15.0, ge=0.0, description="Độ cao so với mặt biển (m)", example=15.0)
     proximity_to_water_m: float = Field(default=120.0, ge=0.0, description="Khoảng cách tới nguồn nước (m)", example=120.0)
     season: str = Field(default="Summer", description="Mùa trong năm", example="Summer")
     plant_species: str = Field(default="Lúa nước", description="Loài cây trồng", example="Lúa nước")
     source: Optional[str] = Field(default="web", description="'web' hoặc 'mobile_qr'", example="web")
+    model_source: Optional[str] = Field(default="lightgbm", description="'lightgbm' hoặc 'spark'", example="lightgbm")
 
 
 class SensorPredictResponse(BaseModel):
@@ -89,6 +90,8 @@ class SensorPredictResponse(BaseModel):
     root_causes: List[str] = Field(default_factory=list, description="Danh sách nguyên nhân gốc rễ")
     remediation: str = Field(..., description="Phác đồ can thiệp nông học tức thì")
     execution_time_ms: float = Field(..., description="Thời gian suy luận AI tính bằng ms", example=1.45)
+    model_source: Optional[str] = "lightgbm"
+    active_threshold: Optional[float] = 0.34
     diagnostic_id: Optional[int] = None
     timestamp: Optional[datetime] = None
 
@@ -135,6 +138,13 @@ class BatchScanJobResponse(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
 
+class GoogleLoginRequest(BaseModel):
+    """Schema đăng nhập bằng Google / Gmail"""
+    email: str = Field(..., example="chuyengia.nonghoc@gmail.com")
+    full_name: Optional[str] = Field(default=None, example="Nguyễn Văn Chuyên Gia")
+    role: Optional[str] = Field(default="engineer", example="engineer")
+
+
 # ==============================================================================
 # 4. HYBRID AI CHATBOT SCHEMAS (Trợ lý chuyên gia cây trồng AgriBot)
 # ==============================================================================
@@ -142,6 +152,9 @@ class ChatMessageRequest(BaseModel):
     """Schema tin nhắn gửi đến AgriBot"""
     session_id: str = Field(..., example="session-demo-001")
     message: str = Field(..., min_length=1, example="Lá lúa bị cháy đầu lá và đất chua thì cần bón phân gì?")
+    model: Optional[str] = Field(default="gemini-1.5-flash", example="gemini-1.5-flash")
+    history: Optional[List[Dict[str, Any]]] = Field(default=None, description="Lịch sử các lượt hội thoại trước")
+    api_key: Optional[str] = Field(default=None, description="Tùy chọn API Key Google Gemini do người dùng cấu hình")
 
 
 class ChatMessageResponse(BaseModel):
@@ -195,6 +208,8 @@ class WebSocketSessionResponse(BaseModel):
     qr_payload: str
     expires_at: datetime
     connected_at: Optional[datetime] = None
+    lan_ip: Optional[str] = None
+    mobile_url: Optional[str] = None
     model_config = ConfigDict(from_attributes=True)
 
 

@@ -1,12 +1,8 @@
 import os
 from datetime import datetime, timedelta, timezone
 from typing import Optional, Dict, Any
-from passlib.context import CryptContext
+import bcrypt
 from jose import jwt, JWTError
-
-
-# Cấu hình Bcrypt mã hóa mật khẩu
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 
 # Đọc cấu hình bảo mật từ .env
@@ -18,12 +14,19 @@ ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", "1440
 
 def hash_password(password: str) -> str:
     """Mã hóa mật khẩu dạng văn bản thô sang chuỗi hash Bcrypt an toàn"""
-    return pwd_context.hash(password)
+    pwd_bytes = str(password)[:72].encode("utf-8")
+    salt = bcrypt.gensalt()
+    return bcrypt.hashpw(pwd_bytes, salt).decode("utf-8")
 
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
     """Kiểm tra mật khẩu nhập vào có khớp với chuỗi hash trong database không"""
-    return pwd_context.verify(plain_password, hashed_password)
+    try:
+        pwd_bytes = str(plain_password)[:72].encode("utf-8")
+        hash_bytes = str(hashed_password).encode("utf-8")
+        return bcrypt.checkpw(pwd_bytes, hash_bytes)
+    except Exception:
+        return False
 
 
 def create_access_token(data: Dict[str, Any], expires_delta: Optional[timedelta] = None) -> str:
