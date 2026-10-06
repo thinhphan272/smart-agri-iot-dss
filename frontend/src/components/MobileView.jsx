@@ -23,7 +23,7 @@ import { useLanguage } from '../context/LanguageContext';
 
 export default function MobileView({ onBackToWeb }) {
   const { role, quickDemoLogin } = useAuth();
-  const { t } = useLanguage();
+  const { lang, t, tText } = useLanguage();
   const [sessionId, setSessionId] = useState('AGRI-998-DEMO');
   const [isConnected, setIsConnected] = useState(false);
   const [socket, setSocket] = useState(null);

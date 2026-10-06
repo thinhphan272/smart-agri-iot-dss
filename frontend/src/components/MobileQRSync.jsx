@@ -30,7 +30,7 @@ export default function MobileQRSync({
   onRemoteSensorUpdate,
   lastPredictionId
 }) {
-  const { t } = useLanguage();
+  const { lang, t, tText } = useLanguage();
   const { isConnected, lastMessage, connectToSession, sendMessage } = useSocket();
   const [localSession, setLocalSession] = useState(null);
   const [localCustomHostIp, setLocalCustomHostIp] = useState('192.168.1.17');
