@@ -1,0 +1,22 @@
+- Tập dữ liệu ghi nhận các chỉ số môi trường và đặc điểm sinh trưởng 
+của nhiều loài cây cỏ được thu thập từ hệ thống cảm biến tại các khu 
+vực sinh thái khác nhau. 
+
+- Mỗi bản ghi tương ứng với một mẫu quan sát tại một thời điểm, bao gồm thông tin về: 
+	+ điều kiện đất, 
+	+ độ ẩm, 
+	+ ánh sáng, 
+	+ nhiệt độ, 
+	+ mức ô nhiễm, 
+	+ khoảng cách đến nguồn nước, 
+	+ mật độ thảm thực vật, 
+	+ độ cao khu vực, 
+	+ cùng với thông tin định danh cảm biến và loại cây. 
+
+- Dữ liệu được thu thập xuyên suốt bốn mùa trong năm và bao gồm cả những yếu tố ngẫu nhiên về 
+	thiết bị, 
+	thẻ nhận dạng, 
+	hoặc ghi chú thực địa.
+
+--> Biến mục tiêu là “plant_health”, thể hiện tình trạng sức khỏe của cây với 
+hai giá trị phân loại: Healthy và Unhealthy.  

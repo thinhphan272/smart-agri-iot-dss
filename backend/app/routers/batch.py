@@ -20,13 +20,15 @@ from backend.app.services.auth_service import decode_access_token
 
 router = APIRouter()
 
-# Xác định đường dẫn file 200,000 dòng có sẵn trong thư mục train_notebook
+# Xác định đường dẫn file 200,000 dòng có sẵn
 CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
 PROJECT_ROOT = os.path.abspath(os.path.join(CURRENT_DIR, "..", "..", ".."))
-DATASET_DIR = os.path.dirname(PROJECT_ROOT)
-DATASET_200K_PATH = os.path.join(DATASET_DIR, "train_notebook", "1_plants_environment_dataset.csv")
+DATASET_200K_PATH = os.path.join(PROJECT_ROOT, "data", "1_plants_environment_dataset.csv")
 if not os.path.exists(DATASET_200K_PATH):
     DATASET_200K_PATH = os.path.join(PROJECT_ROOT, "1_plants_environment_dataset.csv")
+if not os.path.exists(DATASET_200K_PATH):
+    DATASET_DIR = os.path.dirname(PROJECT_ROOT)
+    DATASET_200K_PATH = os.path.join(DATASET_DIR, "train_notebook", "1_plants_environment_dataset.csv")
 
 TEMP_UPLOADS_DIR = os.path.join(PROJECT_ROOT, "backend", "uploads")
 os.makedirs(TEMP_UPLOADS_DIR, exist_ok=True)
