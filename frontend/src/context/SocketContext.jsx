@@ -14,7 +14,9 @@ export const SocketProvider = ({ children }) => {
     }
 
     setSessionId(newSessionId);
-    const wsUrl = `ws://localhost:8000/ws/live-sync/${newSessionId}`;
+    const host = typeof window !== 'undefined' && window.location ? window.location.hostname : 'localhost';
+    const protocol = typeof window !== 'undefined' && window.location?.protocol === 'https:' ? 'wss:' : 'ws:';
+    const wsUrl = `${protocol}//${host}:8000/ws/live-sync/${newSessionId}`;
     const ws = new WebSocket(wsUrl);
 
     ws.onopen = () => {

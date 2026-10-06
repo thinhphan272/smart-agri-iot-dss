@@ -1,5 +1,6 @@
 import uuid
 import json
+import socket
 from datetime import datetime, timedelta, timezone
 from typing import Dict, List, Optional
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect, Depends, HTTPException, status
@@ -17,6 +18,17 @@ from backend.app.dependencies import security
 from backend.app.services.auth_service import decode_access_token
 
 router = APIRouter()
+
+def get_lan_ip() -> str:
+    """Tự động phát hiện IP LAN nội bộ của máy chủ để phát mã QR cho điện thoại di động"""
+    try:
+        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        s.connect(("8.8.8.8", 80))
+        ip = s.getsockname()[0]
+        s.close()
+        return ip
+    except Exception:
+        return "192.168.1.17"
 
 
 class ConnectionManager:
@@ -132,8 +144,9 @@ def create_qr_session(
     session_id = f"AGRI-998-{short_uuid}"
     
     expires_at = datetime.now(timezone.utc) + timedelta(minutes=30)
-    # Đường link QR trỏ tới trang Mobile Field Station của ứng dụng
-    qr_payload = f"/mobile?session_id={session_id}"
+    lan_ip = get_lan_ip()
+    mobile_url = f"http://{lan_ip}:5173/mobile?session_id={session_id}"
+    qr_payload = mobile_url
 
     new_session = WebSocketSession(
         session_id=session_id,
@@ -151,7 +164,9 @@ def create_qr_session(
         status=new_session.status,
         qr_payload=new_session.qr_payload,
         expires_at=new_session.expires_at,
-        connected_at=new_session.connected_at
+        connected_at=new_session.connected_at,
+        lan_ip=lan_ip,
+        mobile_url=mobile_url
     )
 
 
