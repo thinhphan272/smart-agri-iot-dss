@@ -57,7 +57,7 @@ export default function Navbar({ activeTab, setActiveTab }) {
       position: 'sticky',
       top: 0,
       zIndex: 50,
-      background: 'rgba(7, 12, 10, 0.88)',
+      background: 'var(--bg-header)',
       backdropFilter: 'blur(16px)',
       WebkitBackdropFilter: 'blur(16px)',
       borderBottom: '1px solid var(--border-card)',
@@ -218,8 +218,8 @@ export default function Navbar({ activeTab, setActiveTab }) {
           {isAuthenticated && (
             <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '4px 10px', background: 'var(--bg-surface)', borderRadius: '10px', border: '1px solid var(--border-card)' }}>
               {getRoleBadge(role)}
-              <span style={{ fontSize: '0.82rem', fontWeight: 600, color: 'var(--text-primary)' }}>
-                {user?.full_name?.split(' ')?.[0] || 'User'}
+              <span style={{ fontSize: '0.82rem', fontWeight: 600, color: 'var(--text-primary)', maxWidth: 120, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                {user?.full_name?.includes('Quản trị') ? 'Admin' : (user?.full_name || (role ? role.toUpperCase() : 'User'))}
               </span>
               <button 
                 onClick={logout} 

@@ -428,8 +428,25 @@ export default function ChatWidget() {
             )}
 
             {/* Model Selector Toggle */}
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: 'var(--bg-surface)', padding: '5px 10px', borderRadius: 8, border: '1px solid var(--border-card)' }}>
-              <span style={{ fontSize: '0.72rem', color: 'var(--text-secondary)', display: 'flex', alignItems: 'center', gap: 4 }}>
+            <div style={{ 
+              display: 'flex', 
+              alignItems: 'center', 
+              justifyContent: 'space-between', 
+              gap: 8,
+              background: 'var(--bg-surface)', 
+              padding: '6px 10px', 
+              borderRadius: 8, 
+              border: '1px solid var(--border-card)',
+              overflow: 'hidden'
+            }}>
+              <span style={{ 
+                fontSize: '0.72rem', 
+                color: 'var(--text-secondary)', 
+                display: 'flex', 
+                alignItems: 'center', 
+                gap: 4,
+                flexShrink: 0
+              }}>
                 <Cpu size={13} color="var(--color-optimal)" />
                 <span>{t('chatModelSelectLabel')}</span>
               </span>
@@ -437,17 +454,29 @@ export default function ChatWidget() {
                 value={selectedModel}
                 onChange={(e) => setSelectedModel(e.target.value)}
                 style={{
-                  background: 'transparent',
-                  border: 'none',
+                  flex: 1,
+                  minWidth: 0,
+                  maxWidth: '220px',
+                  background: 'var(--bg-elevated)',
+                  border: '1px solid var(--border-card)',
+                  borderRadius: 6,
                   color: 'var(--text-primary)',
                   fontSize: '0.74rem',
                   fontWeight: 600,
                   cursor: 'pointer',
-                  outline: 'none'
+                  outline: 'none',
+                  padding: '4px 6px',
+                  textOverflow: 'ellipsis',
+                  overflow: 'hidden',
+                  whiteSpace: 'nowrap'
                 }}
               >
-                <option value="gemini-1.5-flash">🤖 {t('chatModelGemini')}</option>
-                <option value="internal">🏛️ {t('chatModelInternal')}</option>
+                <option value="gemini-1.5-flash" style={{ backgroundColor: 'var(--bg-surface)', color: 'var(--text-primary)' }}>
+                  🤖 {t('chatModelGemini')}
+                </option>
+                <option value="internal" style={{ backgroundColor: 'var(--bg-surface)', color: 'var(--text-primary)' }}>
+                  🏛️ {t('chatModelInternal')}
+                </option>
               </select>
             </div>
           </div>

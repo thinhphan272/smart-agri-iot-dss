@@ -16,7 +16,7 @@ import { predictAPI, qrAPI } from './services/api';
 
 function MainDashboard() {
   const { t } = useLanguage();
-  const { isConnected, connectToSession, sendMessage } = useSocket();
+  const { isConnected, connectToSession, sendMessage, lastMessage } = useSocket();
   const [activeTab, setActiveTab] = useState('dashboard');
   const [modelSource, setModelSource] = useState('lightgbm'); // 'lightgbm' | 'spark'
 
@@ -118,6 +118,15 @@ function MainDashboard() {
     }));
   };
 
+  // Lắng nghe dữ liệu cảm biến gửi từ Mobile qua WebSocket liên tục 24/7 ở mọi tab
+  useEffect(() => {
+    if (lastMessage) {
+      if (lastMessage.type === 'SENSOR_UPDATE' && lastMessage.payload) {
+        handleRemoteSensorUpdate(lastMessage.payload);
+      }
+    }
+  }, [lastMessage]);
+
   // Khôi phục các thông số cảm biến về vùng tối ưu sau khi phác đồ cứu cây hoàn tất
   const handleRecoverOptimal = (recovered) => {
     setSensorData(prev => {
@@ -149,7 +158,7 @@ function MainDashboard() {
       {/* Main Content Area */}
       <main style={{ maxWidth: 1440, width: '100%', margin: '0 auto', padding: '24px 24px 80px 24px', flex: 1 }}>
         {/* TAB 1: REAL-TIME DASHBOARD */}
-        {activeTab === 'dashboard' && (
+        <div style={{ display: activeTab === 'dashboard' ? 'block' : 'none' }}>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
             {/* Top Grid: Gauge Meter on Left, Sliders on Right */}
             <div style={{
@@ -184,16 +193,20 @@ function MainDashboard() {
               onRecoverOptimal={handleRecoverOptimal}
             />
           </div>
-        )}
+        </div>
 
         {/* TAB 2: BIG DATA BATCH SCAN CSV */}
-        {activeTab === 'batch' && <BatchScanner />}
+        <div style={{ display: activeTab === 'batch' ? 'block' : 'none' }}>
+          <BatchScanner />
+        </div>
 
         {/* TAB 3: ACADEMIC DUAL-TRACK HUB */}
-        {activeTab === 'academic' && <AcademicHub />}
+        <div style={{ display: activeTab === 'academic' ? 'block' : 'none' }}>
+          <AcademicHub />
+        </div>
 
         {/* TAB 4: MOBILE QR LIVE SYNC */}
-        {activeTab === 'mobile_qr' && (
+        <div style={{ display: activeTab === 'mobile_qr' ? 'block' : 'none' }}>
           <MobileQRSync 
             session={session}
             customHostIp={customHostIp}
@@ -202,7 +215,7 @@ function MainDashboard() {
             onRemoteSensorUpdate={handleRemoteSensorUpdate}
             lastPredictionId={lastPredictionId}
           />
-        )}
+        </div>
       </main>
 
       {/* Floating Hybrid AI Doctor Chat Widget */}

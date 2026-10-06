@@ -13,6 +13,7 @@
   /* Dark Theme Palette (Default) */
   --bg-primary: #070c0a;
   --bg-secondary: #0d1411;
+  --bg-header: rgba(7, 12, 10, 0.88);
   --bg-card: rgba(15, 24, 20, 0.72);
   --bg-card-hover: rgba(22, 36, 30, 0.85);
   --bg-surface: #131c18;
@@ -55,7 +56,8 @@
 [data-theme="light"] {
   --bg-primary: #f4f7f5;
   --bg-secondary: #eaf0ec;
-  --bg-card: rgba(255, 255, 255, 0.85);
+  --bg-header: rgba(255, 255, 255, 0.92);
+  --bg-card: rgba(255, 255, 255, 0.88);
   --bg-card-hover: #ffffff;
   --bg-surface: #ffffff;
   --bg-elevated: #e2ebe5;
@@ -242,6 +244,16 @@ h1, h2, h3, h4, h5, h6 {
 .input-field:focus {
   border-color: var(--color-optimal);
   box-shadow: 0 0 0 3px var(--color-optimal-glow);
+}
+
+select {
+  color: var(--text-primary);
+  background-color: var(--bg-surface);
+}
+
+select option {
+  background-color: var(--bg-surface);
+  color: var(--text-primary);
 }
 
 /* Smooth Pulse Animation for Live Sensors */

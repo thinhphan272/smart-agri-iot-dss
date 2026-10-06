@@ -54,8 +54,32 @@ export default function BatchScanner() {
   const maxTotal = scanResult ? scanResult.total_records : 200000;
 
   useEffect(() => {
+    try {
+      const saved = sessionStorage.getItem('agri_batch_scan_result');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        setScanResult(parsed);
+        if (parsed.total_records) {
+          const initEnd = Math.min(25, parsed.total_records);
+          setEndRow(initEnd);
+          setEndRowInput(String(initEnd));
+        }
+      }
+    } catch (e) {
+      console.warn('Cannot load scan result from sessionStorage:', e);
+    }
     loadRecentJobs();
   }, []);
+
+  useEffect(() => {
+    if (scanResult) {
+      try {
+        sessionStorage.setItem('agri_batch_scan_result', JSON.stringify(scanResult));
+      } catch (e) {
+        console.warn('Cannot save scan result to sessionStorage:', e);
+      }
+    }
+  }, [scanResult]);
 
   const loadRecentJobs = async () => {
     try {
