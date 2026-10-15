@@ -12,6 +12,7 @@
 * **AI & Big Data:** 
   * **Bộ não 1:** LightGBM Booster (Huấn luyện tối ưu ROC T* = 0.34, Precision 95.05%).
   * **Bộ não 2:** Apache Spark MLlib GBTClassifier (30 Trees, 6 Partitions RDD phân tán).
+  * 📓 **Notebooks Huấn Luyện:** Toàn bộ mã nguồn huấn luyện và đồ thị đối chứng khoa học tại thư mục [`notebooks/`](notebooks/).
 * **AI Chatbot:** Google Gemini 1.5 Flash Cloud API & Tri thức Nông học Nội bộ.
 
 ---
