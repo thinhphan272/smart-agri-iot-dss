@@ -129,6 +129,15 @@ def check_is_on_topic(message: str, history: Optional[List[Dict[str, Any]]] = No
     """
     msg_lower = message.lower().strip()
 
+    # 0. Loại trừ các câu hỏi hoàn toàn ngoài lề (địa lý, chính trị, tài chính, văn hóa)
+    OFF_TOPIC_EXCLUSIONS = [
+        "thủ đô", "thủ phủ", "nước pháp", "nước mỹ", "nước anh", "nước đức", "nước nga", "nước nhật", 
+        "nước hàn", "nước trung", "quốc gia", "giá vàng", "chứng khoán", "bóng đá", "thơ tình", "ca sĩ",
+        "diễn viên", "lịch sử thế giới", "tổng thống", "vua chúa"
+    ]
+    if any(ex in msg_lower for ex in OFF_TOPIC_EXCLUSIONS):
+        return False
+
     # 1. Kiểm tra từ khóa nông nghiệp trực tiếp
     for kw in AGRI_KEYWORDS:
         if len(kw) <= 2:

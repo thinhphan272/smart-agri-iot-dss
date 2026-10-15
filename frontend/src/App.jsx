@@ -17,8 +17,14 @@ import { predictAPI, qrAPI } from './services/api';
 function MainDashboard() {
   const { t } = useLanguage();
   const { isConnected, connectToSession, sendMessage, lastMessage } = useSocket();
-  const [activeTab, setActiveTab] = useState('dashboard');
-  const [modelSource, setModelSource] = useState('lightgbm'); // 'lightgbm' | 'spark'
+
+  const urlParams = new URLSearchParams(window.location.search);
+  const initialTab = urlParams.get('tab') || 'dashboard';
+  const initialModel = urlParams.get('model') || 'lightgbm';
+  const initialPreset = urlParams.get('preset');
+
+  const [activeTab, setActiveTab] = useState(initialTab);
+  const [modelSource, setModelSource] = useState(initialModel); // 'lightgbm' | 'spark'
 
   // Kiểm tra nếu người dùng vào từ điện thoại /mobile
   const isMobileRoute = window.location.pathname.includes('/mobile') || window.location.search.includes('session_id');
@@ -29,8 +35,32 @@ function MainDashboard() {
   const [customHostIp, setCustomHostIp] = useState('192.168.1.17');
   const [lastPredictionId, setLastPredictionId] = useState(null);
 
-  // 9 Thông số cảm biến mặc định (vùng sinh thái tối ưu)
-  const [sensorData, setSensorData] = useState({
+  // 9 Thông số cảm biến mặc định (vùng sinh thái tối ưu hoặc preset)
+  const defaultSensors = initialPreset === 'acidic' ? {
+    soil_ph: 4.2,
+    soil_moisture: 38.0,
+    air_temp_C: 31.0,
+    sunlight_hours: 7.5,
+    pollution_index: 30.0,
+    vegetation_density: 0.65,
+    elevation_m: 20.0,
+    proximity_to_water_m: 120.0,
+    season: 'Summer',
+    plant_species: 'Lúa nước',
+    source: 'web'
+  } : initialPreset === 'drought' ? {
+    soil_ph: 6.8,
+    soil_moisture: 14.0,
+    air_temp_C: 39.0,
+    sunlight_hours: 11.0,
+    pollution_index: 68.0,
+    vegetation_density: 0.35,
+    elevation_m: 50.0,
+    proximity_to_water_m: 850.0,
+    season: 'Summer',
+    plant_species: 'Lúa nước',
+    source: 'web'
+  } : {
     soil_ph: 6.5,
     soil_moisture: 58.0,
     air_temp_C: 27.0,
@@ -42,19 +72,21 @@ function MainDashboard() {
     season: 'Summer',
     plant_species: 'Lúa nước',
     source: 'web'
-  });
+  };
+
+  const [sensorData, setSensorData] = useState(defaultSensors);
 
   // Kết quả AI dự đoán ban đầu
   const [prediction, setPrediction] = useState({
-    stress_probability: 0.15,
-    is_stress: false,
-    risk_level: 'Optimal',
-    root_causes: [],
-    remediation: 'Hệ sinh thái đang ở trạng thái tối ưu. Tiếp tục duy trì chế độ tưới tiêu và dinh dưỡng định kỳ theo lịch trình chuẩn.',
-    execution_time_ms: 1.45,
+    stress_probability: initialPreset === 'acidic' ? 0.54 : initialPreset === 'drought' ? 0.88 : 0.15,
+    is_stress: initialPreset === 'acidic' || initialPreset === 'drought',
+    risk_level: initialPreset === 'acidic' ? 'Critical' : initialPreset === 'drought' ? 'Emergency' : 'Optimal',
+    root_causes: initialPreset === 'acidic' ? ['Độ pH đất 4.2 nằm ngoài khoảng an toàn (chua)', 'Nguy cơ stress axit rễ'] : [],
+    remediation: initialPreset === 'acidic' ? 'Bón vôi nông nghiệp cải tạo độ chua đất (20-30kg/sào), tăng cường tưới nước trung hòa.' : 'Hệ sinh thái đang ở trạng thái tối ưu.',
+    execution_time_ms: 10.39,
     diagnostic_id: null,
-    model_source: 'lightgbm',
-    active_threshold: 0.34
+    model_source: initialModel,
+    active_threshold: initialModel === 'spark' ? 0.50 : 0.34
   });
 
   const [loadingPredict, setLoadingPredict] = useState(false);
